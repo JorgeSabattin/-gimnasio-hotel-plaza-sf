@@ -674,9 +674,9 @@ let rutinaEnEdicion = []; // [{nombre, ejercicios:[{nombre,series,reps,descanso,
 // CONFIGURACIÓN DE LA NUBE (Supabase)
 // Deja ambos valores vacíos para usar el modo local (solo este equipo).
 // ============================================================
-const SUPABASE_URL = "";       // ej: "https://abcdefgh.supabase.co"
-const SUPABASE_ANON_KEY = "";  // Project Settings → API → anon public
 
+const SUPABASE_URL = "https://wbrtxcthmktxprcybmrn.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicnR4Y3RobWt0eHByY3libXJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzQyNzIsImV4cCI6MjEwNjgxMDI3Mn0.eWehgxTMFTrmQRyYQ0hmL2P11O0lzq3OV8r1xMT-5w4";
 const MODO_NUBE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = MODO_NUBE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
