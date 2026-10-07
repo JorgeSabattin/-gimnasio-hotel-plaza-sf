@@ -203,8 +203,8 @@
   }
   .sesion-card .sesion-head{display:flex; gap:10px; align-items:center; margin-bottom:10px}
   .sesion-card .sesion-head input{font-family:'Fraunces',serif; font-size:14.5px; font-weight:600; background:#fff}
-  .ejercicio-row{display:grid; grid-template-columns:2.2fr 0.8fr 0.9fr 0.9fr 1.3fr auto; gap:6px; margin-bottom:6px; align-items:center}
-  @media (max-width:800px){ .ejercicio-row{grid-template-columns:1fr 1fr; grid-template-areas:"a a" "b c" "d e" "f f"} }
+  .ejercicio-row{display:grid; grid-template-columns:2.1fr 0.6fr 0.8fr 0.7fr 0.9fr 0.8fr 1.2fr auto; gap:6px; margin-bottom:6px; align-items:center}
+  @media (max-width:800px){ .ejercicio-row{grid-template-columns:1fr 1fr} .ejercicio-row select{grid-column:1/-1} .ejercicio-head-row{display:none} }
   .ejercicio-row input, .ejercicio-row select{padding:7px 9px; font-size:12.5px}
   .ejercicio-row select{background:#fff; font-family:'Public Sans',sans-serif}
   .ejercicio-row select.vacio{color:var(--muted); border-color:var(--brass)}
@@ -212,7 +212,7 @@
     background:transparent; border:none; color:var(--faint); cursor:pointer; font-size:16px; padding:4px 8px;
   }
   .ejercicio-row .icon-btn:hover{color:var(--red)}
-  .ejercicio-head-row{display:grid; grid-template-columns:2.2fr 0.8fr 0.9fr 0.9fr 1.3fr auto; gap:6px; margin-bottom:6px;}
+  .ejercicio-head-row{display:grid; grid-template-columns:2.1fr 0.6fr 0.8fr 0.7fr 0.9fr 0.8fr 1.2fr auto; gap:6px; margin-bottom:6px;}
   @media (max-width:800px){ .ejercicio-head-row{display:none} }
   .ejercicio-head-row span{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--faint); font-weight:700}
   .sesion-actions{display:flex; justify-content:space-between; margin-top:8px}
@@ -277,6 +277,18 @@
   details.rut-historial summary{cursor:pointer; font-weight:600; font-size:13px; color:var(--muted)}
   .badge-pend{display:inline-block; margin-left:8px; padding:2px 8px; border-radius:20px; background:#FBEBD9; color:#7A4A12; font:700 11px 'Public Sans',sans-serif}
 
+  .kg-calc{font:700 12.5px 'Space Mono',monospace; color:var(--teal-d); padding:0 4px; white-space:nowrap}
+  .kg-calc.sin{color:var(--faint); font-weight:400}
+  .fuerza-box{grid-column:1/-1; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px}
+  .fuerza-box .t{font-weight:700; font-size:13px; margin-bottom:2px}
+  .fuerza-box .d{font-size:12px; color:var(--muted); margin-bottom:10px}
+  .fuerza-row{display:grid; grid-template-columns:2.4fr 0.9fr 0.8fr 1fr auto; gap:6px; margin-bottom:6px; align-items:center}
+  .fuerza-row input, .fuerza-row select{padding:7px 9px; font-size:12.5px}
+  .fuerza-row select{background:#fff; font-family:'Public Sans',sans-serif}
+  @media (max-width:800px){ .fuerza-row{grid-template-columns:1fr 1fr 1fr} .fuerza-row select{grid-column:1/-1} }
+  .eval-editando{background:#FBEBD9; border:1px solid #E6C9A0; color:#7A4A12; border-radius:var(--radius-sm); padding:8px 12px; font-size:13px; margin-bottom:10px; display:none}
+  .eval-editando.show{display:block}
+
   /* ---------- Vista del socio (celular) ---------- */
   body.modo-socio .wrap{max-width:560px; padding:0 0 calc(40px + env(safe-area-inset-bottom))}
   body.modo-socio header.app{display:none}
@@ -324,6 +336,32 @@
   .sv-pie{text-align:center; color:var(--faint); font-size:12px; margin:6px 0 0}
   .sv-vacio{background:var(--surface); border:1px dashed var(--border); border-radius:14px; padding:28px 18px; text-align:center; color:var(--muted); line-height:1.5}
   body.modo-socio .aviso-rpe{margin:0 0 12px}
+  .sv-pill.carga{background:var(--brass); color:#fff; font-family:'Space Mono',monospace; font-size:14px}
+  .sv-tabs{display:grid; grid-template-columns:1fr 1fr; gap:4px; background:var(--bg2); border-radius:12px; padding:4px; margin:0 0 14px}
+  .sv-tab{border:0; background:transparent; border-radius:9px; padding:11px 8px; font:700 14px 'Public Sans',sans-serif; color:var(--muted); cursor:pointer}
+  .sv-tab[aria-selected="true"]{background:var(--surface); color:var(--teal-d); box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .sv-tab:focus-visible{outline:3px solid var(--brass); outline-offset:2px}
+  .sv-ev{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px}
+  .sv-ev h3{font-family:'Fraunces',serif; font-size:19px; margin:0 0 2px}
+  .sv-ev .sub{font-size:12.5px; color:var(--muted); margin-bottom:12px}
+  .sv-datos{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px}
+  .sv-dato{background:var(--bg2); border-radius:10px; padding:10px 12px}
+  .sv-dato .k{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700}
+  .sv-dato .v{font:700 20px 'Space Mono',monospace; color:var(--ink); margin-top:2px}
+  .sv-dato .delta{font-size:12px; font-weight:600; color:var(--muted)}
+  .sv-ev .sec{font-weight:700; font-size:13px; margin:12px 0 6px; color:var(--ink)}
+  .sv-ev table{width:100%; border-collapse:collapse; font-size:13px}
+  .sv-ev td, .sv-ev th{padding:7px 4px; border-bottom:1px solid var(--border); text-align:left}
+  .sv-ev th{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)}
+  .sv-ev td.n{font-family:'Space Mono',monospace; text-align:right; white-space:nowrap}
+  .sv-ev .notas{font-size:14px; line-height:1.45; color:var(--ink); white-space:pre-wrap}
+  .sv-informe{display:block; width:100%; border:1px solid var(--border); border-radius:10px; background:#fff; padding:0; cursor:pointer; overflow:hidden; margin-top:4px}
+  .sv-informe img{display:block; width:100%; min-height:80px}
+  .sv-informe span{display:block; padding:8px; font-weight:700; font-size:13px; color:var(--teal-d)}
+  details.sv-ev summary{cursor:pointer; font-weight:700; font-size:15px; list-style:none}
+  details.sv-ev summary::after{content:"Ver"; float:right; font-size:12.5px; color:var(--teal-d)}
+  details.sv-ev[open] summary{margin-bottom:12px}
+  details.sv-ev[open] summary::after{content:"Ocultar"}
 
   /* ---------- Miniatura de informe ---------- */
   .mini-inf{display:flex; flex-direction:column; align-items:center; gap:4px; background:transparent; border:1px solid var(--border);
@@ -389,12 +427,19 @@
         <button class="sv-salir" id="btnPortalSalir">Salir</button>
       </div>
       <div class="sv-cont">
-        <div class="aviso-rpe" id="ptAviso" style="display:none">Controla la intensidad por esfuerzo percibido (RPE), no por frecuencia cardíaca ni pulsómetro.</div>
-        <div class="chips sv-chips" id="ptChips" role="tablist" aria-label="Sesiones"></div>
-        <div class="sv-resumen" id="ptResumen"></div>
-        <div id="ptEjercicios"></div>
-        <button class="btn btn-primary btn-block sv-fin" id="btnPortalRegistrar">Terminé esta sesión</button>
-        <p class="sv-pie" id="ptPie"></p>
+        <div class="sv-tabs" role="tablist" aria-label="Secciones">
+          <button class="sv-tab" role="tab" id="ptTabSesion" aria-selected="true" aria-controls="ptPanelSesion">Mi sesión</button>
+          <button class="sv-tab" role="tab" id="ptTabEval" aria-selected="false" aria-controls="ptPanelEval">Mi evaluación</button>
+        </div>
+        <div id="ptPanelSesion" role="tabpanel" aria-labelledby="ptTabSesion">
+          <div class="aviso-rpe" id="ptAviso" style="display:none">Controla la intensidad por esfuerzo percibido (RPE), no por frecuencia cardíaca ni pulsómetro.</div>
+          <div class="chips sv-chips" id="ptChips" role="tablist" aria-label="Sesiones"></div>
+          <div class="sv-resumen" id="ptResumen"></div>
+          <div id="ptEjercicios"></div>
+          <button class="btn btn-primary btn-block sv-fin" id="btnPortalRegistrar">Terminé esta sesión</button>
+          <p class="sv-pie" id="ptPie"></p>
+        </div>
+        <div id="ptPanelEval" role="tabpanel" aria-labelledby="ptTabEval" style="display:none"></div>
       </div>
     </div>
   </div>
@@ -510,7 +555,8 @@
         <div id="rutinasAnteriores"></div>
 
         <h3 style="margin-top:26px">Evaluaciones</h3>
-        <div class="desc">Registro periódico de control del socio.</div>
+        <div class="desc">Registro periódico de control del socio. El socio ve sus evaluaciones (con el informe) en su celular.</div>
+        <div class="eval-editando" id="evalEditando"></div>
         <div class="form-grid">
           <div class="field">
             <label for="evalFecha">Fecha</label>
@@ -532,9 +578,16 @@
             <label for="evalImagen">Informe (imagen, opcional)</label>
             <input type="file" id="evalImagen" accept="image/*">
           </div>
+          <div class="fuerza-box">
+            <div class="t">Test de fuerza</div>
+            <div class="d">Por cada ejercicio: la carga levantada y cuántas repeticiones completó con técnica correcta. La app estima el 1RM y con él calcula los kilos de la rutina.</div>
+            <div id="fuerzaEditor"></div>
+            <button class="btn btn-ghost btn-sm" id="btnAgregarFuerza" type="button">+ Ejercicio al test</button>
+          </div>
         </div>
         <div class="form-actions" style="margin-bottom:16px">
           <button class="btn btn-ghost btn-sm" id="btnAgregarEvaluacion">Agregar evaluación</button>
+          <button class="btn btn-ghost btn-sm" id="btnCancelarEval" style="display:none">Cancelar edición</button>
         </div>
         <div id="tablaEvaluacionesWrap"></div>
         <input type="file" id="evalAdjuntar" accept="image/*" style="display:none">
@@ -730,10 +783,19 @@ const PORTAL = {
       const s = socios[rut];
       if(!s || !s.pin || s.pin !== pin) return null;
       const regs = ((await STORE.get("gym-registros")) || []).filter(r => r.rut === rut);
-      return { nombre: s.nombre, rutina: s.rutina, registros: regs, controlRPE: !!s.controlRPE };
+      return { nombre: s.nombre, rutina: s.rutina, registros: regs, controlRPE: !!s.controlRPE,
+               evaluaciones: (s.evaluaciones || []).map(evaluacionParaSocio) };
     }
     const { data, error } = await sb.rpc("socio_portal", { p_rut: rut, p_pin: pin });
     if(error) throw error;
+    return data;
+  },
+  async imagen(rut, pin, id){
+    if(!MODO_NUBE) return obtenerImagen(id);
+    if(IMG_CACHE[id]) return IMG_CACHE[id];
+    const { data, error } = await sb.rpc("socio_imagen", { p_rut: rut, p_pin: pin, p_id: id });
+    if(error) throw error;
+    if(data) IMG_CACHE[id] = data;
     return data;
   },
   async registrar(rut, pin, reg){
@@ -937,12 +999,12 @@ async function obtenerImagen(id){
   if(v) IMG_CACHE[id] = v;
   return v;
 }
-async function verImagen(id, titulo){
+async function verImagen(id, titulo, cargar){
   const visor = document.getElementById("visor"), cont = document.getElementById("visorCont");
   cont.innerHTML = '<div class="cargando">Cargando informe…</div>';
   visor.classList.add("abierto");
   try{
-    const src = await obtenerImagen(id);
+    const src = await (cargar || obtenerImagen)(id);
     cont.innerHTML = src ? '<img alt="' + escapeAttr(titulo || "Informe") + '" src="' + src + '">' : '<div class="cargando">No se encontró la imagen.</div>';
   }catch(e){ cont.innerHTML = '<div class="cargando">No se pudo cargar la imagen.</div>'; }
 }
@@ -1000,9 +1062,10 @@ function cargarSocioEnFormulario(rutNorm){
   rutinaEnEdicion = s.rutina && s.rutina.sesiones ? JSON.parse(JSON.stringify(s.rutina.sesiones)) : [];
   document.getElementById("fichaHint").style.display = "none";
   document.getElementById("fichaAvanzada").classList.add("show");
-  renderRutinaEditor();
   renderRutinaMeta();
+  renderRutinaEditor();
   renderRutinasAnteriores();
+  cancelarEdicionEval();
   renderEvaluaciones();
   renderRegistrosSocio();
 
@@ -1021,6 +1084,7 @@ function limpiarFormularioSocio(){
   renderResumenAntecedentes(null);
   document.getElementById("bloqueAntecedentes").open = false;
   document.getElementById("editNote").classList.remove("show");
+  cancelarEdicionEval();
   document.getElementById("fichaAvanzada").classList.remove("show");
   document.getElementById("fichaHint").style.display = "block";
 }
@@ -1437,6 +1501,71 @@ function compartirPortal(){
 }
 
 // ============================================================
+// CARGAS: 1RM estimado desde el test de fuerza de la evaluación
+// ============================================================
+const RIR_DEFECTO = 2;   // repeticiones en reserva cuando el profesor no fija el % 1RM
+function numero(v){ const n = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(n) ? n : 0; }
+function fmtKg(n){ return (Math.round(n * 2) / 2).toLocaleString("es-CL", { maximumFractionDigits: 1 }); }
+// Brzycki hasta 10 reps; Epley sobre 10
+function estimarRM(carga, reps){
+  const c = numero(carga), r = Math.round(numero(reps));
+  if(!c || !r || r < 1 || r > 30) return 0;
+  if(r === 1) return c;
+  return r <= 10 ? c * 36 / (37 - r) : c * (1 + r / 30);
+}
+function pctPorReps(r){ return r <= 10 ? (37 - r) / 36 * 100 : 100 / (1 + r / 30); }
+// Reps objetivo de la rutina: toma el número mayor ("8-10" → 10). Devuelve 0 si es tiempo ("30-45s", "15 min").
+function repsObjetivo(txt){
+  const t = String(txt || "").toLowerCase();
+  if(/\d\s*(s|seg|min|'|")\b|\bmin\b|\bseg/.test(t)) return 0;
+  const nums = (t.match(/\d+/g) || []).map(Number).filter(n => n > 0 && n <= 30);
+  return nums.length ? Math.max(...nums) : 0;
+}
+// Busca el 1RM del ejercicio: primero en la evaluación base; si no está, en la evaluación anterior más reciente que lo tenga.
+function rmEjercicio(socio, nombre, evBaseId){
+  const evals = (socio && socio.evaluaciones || []).slice().sort((a,b) => fechaNum(b.fecha) - fechaNum(a.fecha));
+  const base = evals.find(e => e.id === evBaseId);
+  const lista = base ? [base].concat(evals.filter(e => e !== base && fechaNum(e.fecha) <= fechaNum(base.fecha))) : evals;
+  const n = normNom(nombre);
+  for(const ev of lista){
+    const t = (ev.fuerza || []).find(f => normNom(f.ejercicio) === n && numero(f.rm) > 0);
+    if(t) return { rm: numero(t.rm), fecha: ev.fecha };
+  }
+  return null;
+}
+// Carga sugerida para una fila de la rutina. pct del profesor manda; si no hay, % por reps con RIR_DEFECTO en reserva.
+function calcularCarga(socio, ej, evBaseId){
+  const t = rmEjercicio(socio, ej.nombre, evBaseId);
+  if(!t) return null;
+  let pct = numero(ej.pct), auto = false;
+  if(!pct){
+    const r = repsObjetivo(ej.reps);
+    if(!r) return null;
+    pct = pctPorReps(r + RIR_DEFECTO); auto = true;
+  }
+  const kg = Math.round(t.rm * pct / 100 * 2) / 2;
+  return kg > 0 ? { kg, pct: Math.round(pct), auto, rm: t.rm, fecha: t.fecha } : null;
+}
+function evalBaseSeleccionada(){
+  const sel = document.getElementById("rutBaseEval");
+  if(sel && sel.options.length) return sel.value;
+  const s = editandoRut ? SOCIOS[editandoRut] : null;
+  return s && s.rutina ? s.rutina.evaluacionId || "" : "";
+}
+function textoCarga(c){
+  return c ? fmtKg(c.kg) + " kg" : "—";
+}
+function tituloCarga(c){
+  return c ? "1RM " + fmtKg(c.rm) + " kg (test del " + c.fecha + ") × " + c.pct + "%" + (c.auto ? " (según reps, " + RIR_DEFECTO + " en reserva)" : "")
+           : "Sin test de fuerza para este ejercicio, o reps por tiempo";
+}
+// Lo que el socio puede ver de una evaluación (sin antecedentes de salud)
+function evaluacionParaSocio(ev){
+  return { id: ev.id, fecha: ev.fecha, peso: ev.peso || "", cintura: ev.cintura || "", notas: ev.notas || "",
+           fuerza: ev.fuerza || [], imagenId: ev.imagenId || "" };
+}
+
+// ============================================================
 // LÓGICA: RUTINA DE ENTRENAMIENTO
 // ============================================================
 const PLANTILLA_RECOMPOSICION = [
@@ -1512,12 +1641,14 @@ function renderRutinaEditor(){
         '<input type="text" data-sesion-nombre="' + sIdx + '" value="' + escapeAttr(sesion.nombre) + '">' +
         '<button class="btn btn-danger btn-sm" data-eliminar-sesion="' + sIdx + '">Eliminar sesión</button>' +
       '</div>' +
-      '<div class="ejercicio-head-row"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>Descanso</span><span>Notas</span><span></span></div>';
+      '<div class="ejercicio-head-row"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>% 1RM</span><span>Carga</span><span>Descanso</span><span>Notas</span><span></span></div>';
     sesion.ejercicios.forEach((ej, eIdx)=>{
       html += '<div class="ejercicio-row">' +
         '<select data-ej-sel data-s="' + sIdx + '" data-e="' + eIdx + '" class="' + (ej.nombre ? '' : 'vacio') + '" aria-label="Ejercicio">' + opcionesEjercicios(ej.nombre) + '</select>' +
         '<input type="text" placeholder="Series" data-ej="series" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.series) + '">' +
         '<input type="text" placeholder="Reps" data-ej="reps" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.reps) + '">' +
+        '<input type="text" inputmode="decimal" placeholder="auto" title="% del 1RM. Vacío = según las reps, con ' + RIR_DEFECTO + ' en reserva" data-ej="pct" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.pct || "") + '">' +
+        (c => '<div class="kg-calc' + (c ? '' : ' sin') + '" data-kg="' + sIdx + ':' + eIdx + '" title="' + escapeAttr(tituloCarga(c)) + '">' + textoCarga(c) + '</div>')(calcularCarga(SOCIOS[editandoRut], ej, evalBaseSeleccionada())) +
         '<input type="text" placeholder="Descanso" data-ej="descanso" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.descanso) + '">' +
         '<input type="text" placeholder="Notas" data-ej="notas" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.notas) + '">' +
         '<button class="icon-btn" data-eliminar-ejercicio="' + sIdx + ':' + eIdx + '" title="Eliminar ejercicio">✕</button>' +
@@ -1555,6 +1686,11 @@ function renderRutinaEditor(){
     inp.oninput = () => {
       const s = +inp.getAttribute("data-s"), e = +inp.getAttribute("data-e"), campo = inp.getAttribute("data-ej");
       rutinaEnEdicion[s].ejercicios[e][campo] = inp.value;
+      if(campo === "pct" || campo === "reps"){
+        const cell = host.querySelector('[data-kg="' + s + ':' + e + '"]');
+        const c = calcularCarga(SOCIOS[editandoRut], rutinaEnEdicion[s].ejercicios[e], evalBaseSeleccionada());
+        if(cell){ cell.textContent = textoCarga(c); cell.title = tituloCarga(c); cell.classList.toggle("sin", !c); }
+      }
     };
   });
   host.querySelectorAll("button[data-eliminar-sesion]").forEach(btn=>{
@@ -1585,6 +1721,12 @@ async function guardarRutina(){
   const evId = document.getElementById("rutBaseEval").value;
   const ev = (socio.evaluaciones || []).find(x => x.id === evId);
   const prox = document.getElementById("rutProxEval").value.trim();
+  const pctMalo = rutinaEnEdicion.some(ses => ses.ejercicios.some(ej => String(ej.pct || "").trim() && !(numero(ej.pct) > 0 && numero(ej.pct) <= 100)));
+  if(pctMalo){ toast("El % 1RM debe ser un número entre 1 y 100 (o quedar vacío).", true); return; }
+  rutinaEnEdicion.forEach(ses => ses.ejercicios.forEach(ej => {
+    const c = calcularCarga(socio, ej, evId);
+    ej.kg = c ? fmtKg(c.kg) : "";
+  }));
   if(prox && !fechaNum(prox)){ toast("La próxima evaluación debe tener formato dd-mm-aaaa.", true); return; }
   const anterior = socio.rutina;
   const nueva = {
@@ -1615,6 +1757,61 @@ function escapeAttr(s){
 // ============================================================
 // LÓGICA: EVALUACIONES
 // ============================================================
+let fuerzaEnEdicion = [];   // [{ejercicio, carga, reps}] del formulario de evaluación
+let evalEditandoId = null;   // id de la evaluación que se está editando, o null si es nueva
+
+function renderFuerzaEditor(){
+  const host = document.getElementById("fuerzaEditor");
+  if(!fuerzaEnEdicion.length){ host.innerHTML = '<div class="d" style="margin:0 0 8px">Sin ejercicios en el test.</div>'; return; }
+  host.innerHTML = fuerzaEnEdicion.map((f, i) => {
+    const rm = estimarRM(f.carga, f.reps);
+    return '<div class="fuerza-row">' +
+      '<select data-f-sel="' + i + '" aria-label="Ejercicio del test">' + opcionesEjercicios(f.ejercicio).replace(/<option value="__nuevo__">[^<]*<\/option>/, "") + '</select>' +
+      '<input type="text" inputmode="decimal" placeholder="Carga kg" data-f="carga" data-i="' + i + '" value="' + escapeAttr(f.carga) + '">' +
+      '<input type="text" inputmode="numeric" placeholder="Reps" data-f="reps" data-i="' + i + '" value="' + escapeAttr(f.reps) + '">' +
+      '<div class="kg-calc' + (rm ? '' : ' sin') + '" data-f-rm="' + i + '">' + (rm ? '1RM ≈ ' + fmtKg(rm) + ' kg' : '1RM —') + '</div>' +
+      '<button class="icon-btn" type="button" data-f-del="' + i + '" title="Quitar">✕</button>' +
+    '</div>';
+  }).join("");
+  host.querySelectorAll("select[data-f-sel]").forEach(sel => sel.onchange = () => { fuerzaEnEdicion[+sel.dataset.fSel].ejercicio = sel.value; });
+  host.querySelectorAll("input[data-f]").forEach(inp => inp.oninput = () => {
+    const i = +inp.dataset.i; fuerzaEnEdicion[i][inp.dataset.f] = inp.value;
+    const rm = estimarRM(fuerzaEnEdicion[i].carga, fuerzaEnEdicion[i].reps);
+    const cell = host.querySelector('[data-f-rm="' + i + '"]');
+    cell.textContent = rm ? '1RM ≈ ' + fmtKg(rm) + ' kg' : '1RM —'; cell.classList.toggle("sin", !rm);
+  });
+  host.querySelectorAll("button[data-f-del]").forEach(b => b.onclick = () => { fuerzaEnEdicion.splice(+b.dataset.fDel, 1); renderFuerzaEditor(); });
+}
+function agregarFilaFuerza(){ fuerzaEnEdicion.push({ ejercicio:"", carga:"", reps:"" }); renderFuerzaEditor(); }
+
+function cancelarEdicionEval(){
+  evalEditandoId = null;
+  fuerzaEnEdicion = [];
+  ["evalFecha","evalPeso","evalCintura","evalNotas","evalImagen"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("btnAgregarEvaluacion").textContent = "Agregar evaluación";
+  document.getElementById("btnCancelarEval").style.display = "none";
+  document.getElementById("evalEditando").classList.remove("show");
+  renderFuerzaEditor();
+}
+function editarEvaluacion(evalId){
+  const ev = (SOCIOS[editandoRut].evaluaciones || []).find(x => x.id === evalId);
+  if(!ev) return;
+  evalEditandoId = ev.id;
+  document.getElementById("evalFecha").value = ev.fecha || "";
+  document.getElementById("evalPeso").value = ev.peso || "";
+  document.getElementById("evalCintura").value = ev.cintura || "";
+  document.getElementById("evalNotas").value = ev.notas || "";
+  document.getElementById("evalImagen").value = "";
+  fuerzaEnEdicion = (ev.fuerza || []).map(f => ({ ejercicio: f.ejercicio, carga: f.carga, reps: f.reps }));
+  if(!fuerzaEnEdicion.length) agregarFilaFuerza(); else renderFuerzaEditor();
+  document.getElementById("btnAgregarEvaluacion").textContent = "Guardar cambios";
+  document.getElementById("btnCancelarEval").style.display = "";
+  const aviso = document.getElementById("evalEditando");
+  aviso.textContent = "Editando la evaluación del " + ev.fecha + (ev.imagenId ? ". Si eliges una imagen nueva, reemplaza el informe actual." : ".");
+  aviso.classList.add("show");
+  aviso.scrollIntoView({ behavior:"smooth", block:"center" });
+}
+
 async function agregarEvaluacion(){
   if(!editandoRut){ toast("Selecciona un socio guardado primero.", true); return; }
   const fecha = document.getElementById("evalFecha").value.trim() || hoyStr();
@@ -1622,29 +1819,44 @@ async function agregarEvaluacion(){
   const cintura = document.getElementById("evalCintura").value.trim();
   const notas = document.getElementById("evalNotas").value.trim();
   const archivo = document.getElementById("evalImagen").files[0];
-  if(!peso && !cintura && !notas && !archivo){ toast("Ingresa al menos un dato de la evaluación.", true); return; }
+  if(!fechaNum(fecha)){ toast("La fecha debe tener formato dd-mm-aaaa.", true); return; }
+  const filas = fuerzaEnEdicion.filter(f => f.ejercicio || String(f.carga).trim() || String(f.reps).trim());
+  const incompleta = filas.find(f => !f.ejercicio || !estimarRM(f.carga, f.reps));
+  if(incompleta){ toast("Test de fuerza: cada fila necesita ejercicio, carga y reps (1 a 30).", true); return; }
+  const fuerza = filas.map(f => ({ ejercicio: f.ejercicio, carga: String(f.carga).trim(), reps: String(f.reps).trim(),
+                                   rm: String(Math.round(estimarRM(f.carga, f.reps) * 10) / 10) }));
+  const socio = SOCIOS[editandoRut];
+  const editando = evalEditandoId ? (socio.evaluaciones || []).find(x => x.id === evalEditandoId) : null;
+  if(!editando && !peso && !cintura && !notas && !archivo && !fuerza.length){ toast("Ingresa al menos un dato de la evaluación.", true); return; }
 
-  let imagenId = "";
+  let imagenId = editando ? editando.imagenId || "" : "";
   if(archivo){
     try{ imagenId = await guardarImagen(archivo); }
     catch(e){ console.error(e); toast("No se pudo guardar la imagen.", true); return; }
   }
-  const socio = SOCIOS[editandoRut];
   socio.evaluaciones = socio.evaluaciones || [];
-  socio.evaluaciones.push({ id:"e"+Date.now(), fecha, peso, cintura, notas, imagenId });
-  await guardarSocios();
+  if(editando){
+    const imgVieja = editando.imagenId;
+    Object.assign(editando, { fecha, peso, cintura, notas, imagenId, fuerza });
+    if(!(await guardarSocios())) return;
+    if(imgVieja && imgVieja !== imagenId){ try{ await STORE.del("img:" + imgVieja); }catch(e){ console.error(e); } }
+    const esBase = socio.rutina && socio.rutina.evaluacionId === editando.id;
+    cancelarEdicionEval();
+    renderEvaluaciones(); renderRutinaMeta(); renderRutinaEditor(); renderSocios();
+    toast(esBase ? "Evaluación actualizada. Pulsa Guardar rutina para publicar las cargas nuevas." : "Evaluación actualizada.");
+    return;
+  }
+  socio.evaluaciones.push({ id:"e"+Date.now(), fecha, peso, cintura, notas, imagenId, fuerza });
+  if(!(await guardarSocios())) return;
   toast("Evaluación agregada.");
 
-  document.getElementById("evalFecha").value = "";
-  document.getElementById("evalPeso").value = "";
-  document.getElementById("evalCintura").value = "";
-  document.getElementById("evalNotas").value = "";
-  document.getElementById("evalImagen").value = "";
+  cancelarEdicionEval();
   renderEvaluaciones();
   const nuevaEv = socio.evaluaciones[socio.evaluaciones.length - 1];
   const sel = document.getElementById("rutBaseEval");
   sel.dataset.forzar = nuevaEv.id;
   renderRutinaMeta();
+  renderRutinaEditor();
   renderSocios();
   if(confirm("Evaluación registrada. ¿Actualizar ahora la rutina del socio a partir de esta evaluación?")){
     document.getElementById("rutinaMeta").scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1658,6 +1870,7 @@ async function eliminarEvaluacion(evalId){
   const ev = (socio.evaluaciones||[]).find(x => x.id === evalId);
   if(!confirm("¿Eliminar la evaluación del " + (ev ? ev.fecha : "") + "?")) return;
   socio.evaluaciones = (socio.evaluaciones||[]).filter(x => x.id !== evalId);
+  if(evalEditandoId === evalId) cancelarEdicionEval();
   await guardarSocios();
   if(ev && ev.imagenId){ try{ await STORE.del("img:" + ev.imagenId); }catch(e){ console.error(e); } }
   renderEvaluaciones();
@@ -1674,24 +1887,28 @@ function renderEvaluaciones(){
     return;
   }
   evals.reverse();
-  let html = '<table><thead><tr><th>Fecha</th><th>Peso (kg)</th><th>Cintura (cm)</th><th>Notas</th><th>Informe</th><th></th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Fecha</th><th>Peso (kg)</th><th>Cintura (cm)</th><th>Test de fuerza</th><th>Notas</th><th>Informe</th><th></th></tr></thead><tbody>';
   evals.forEach(ev=>{
     html += '<tr>' +
       '<td>' + escapeHtml(ev.fecha) + '</td>' +
       '<td>' + (ev.peso ? escapeHtml(ev.peso) : '<span class="muted-cell">—</span>') + '</td>' +
       '<td>' + (ev.cintura ? escapeHtml(ev.cintura) : '<span class="muted-cell">—</span>') + '</td>' +
+      '<td>' + ((ev.fuerza || []).length ? ev.fuerza.map(f => escapeHtml(f.ejercicio) + ': ' + escapeHtml(fmtKg(numero(f.rm))) + ' kg').join('<br>') : '<span class="muted-cell">—</span>') + '</td>' +
       '<td>' + (ev.notas ? escapeHtml(ev.notas) : '<span class="muted-cell">—</span>') + '</td>' +
       '<td style="white-space:nowrap">' + (ev.imagenId
         ? '<button class="mini-inf" data-ver-img="' + ev.imagenId + '" data-fecha="' + escapeAttr(ev.fecha) + '" title="Ver informe completo">' +
             '<img alt="Informe del ' + escapeAttr(ev.fecha) + '" data-thumb="' + ev.imagenId + '"><span>Ver informe</span></button>'
         : '<button class="btn btn-ghost btn-sm" data-adjuntar="' + ev.id + '">Adjuntar</button>') + '</td>' +
-      '<td><button class="btn btn-danger btn-sm" data-eliminar-eval="' + ev.id + '">Eliminar</button></td>' +
+      '<td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" data-editar-eval="' + ev.id + '">Editar</button> <button class="btn btn-danger btn-sm" data-eliminar-eval="' + ev.id + '">Eliminar</button></td>' +
       '</tr>';
   });
   html += '</tbody></table>';
   host.innerHTML = html;
   host.querySelectorAll("button[data-eliminar-eval]").forEach(btn=>{
     btn.onclick = () => eliminarEvaluacion(btn.getAttribute("data-eliminar-eval"));
+  });
+  host.querySelectorAll("button[data-editar-eval]").forEach(btn=>{
+    btn.onclick = () => editarEvaluacion(btn.getAttribute("data-editar-eval"));
   });
   host.querySelectorAll("button[data-ver-img]").forEach(btn=>{
     btn.onclick = () => verImagen(btn.dataset.verImg, "Informe del " + btn.dataset.fecha);
@@ -1765,7 +1982,7 @@ async function portalEntrar(){
   try{
     const data = await PORTAL.abrir(rut, pin);
     if(!data){ toast("RUT o clave incorrectos.", true); portalOlvidar(); return; }
-    PT = { rut, pin, nombre: data.nombre, rutina: data.rutina, registros: data.registros || [], controlRPE: !!data.controlRPE };
+    PT = { rut, pin, nombre: data.nombre, rutina: data.rutina, registros: data.registros || [], controlRPE: !!data.controlRPE, evaluaciones: data.evaluaciones };
     const cred = JSON.stringify({ rut, pin });
     if(document.getElementById("ptRecordar").checked){ try{ LOCAL.set("gym-portal", cred); }catch(e){} }
     sessionStorage.setItem("gym-portal", cred);
@@ -1775,7 +1992,78 @@ async function portalEntrar(){
   document.getElementById("socioLogin").style.display = "none";
   document.getElementById("socioSesion").style.display = "block";
   ptSesionSel = Math.max(0, proximaSesion(PT.rutina, PT.registros));
+  mostrarPestanaPortal("sesion");
   renderPortal();
+}
+
+let ptPestana = "sesion";
+function mostrarPestanaPortal(cual){
+  ptPestana = cual;
+  document.getElementById("ptTabSesion").setAttribute("aria-selected", cual === "sesion");
+  document.getElementById("ptTabEval").setAttribute("aria-selected", cual === "eval");
+  document.getElementById("ptPanelSesion").style.display = cual === "sesion" ? "" : "none";
+  document.getElementById("ptPanelEval").style.display = cual === "eval" ? "" : "none";
+  if(cual === "eval") renderPortalEvaluacion();
+  window.scrollTo({ top: 0 });
+}
+
+function bloqueEvaluacion(ev, anterior){
+  const dato = (k, v, unidad, prev) => {
+    if(!v) return "";
+    let delta = "";
+    if(prev && numero(prev) && numero(v)){
+      const d = Math.round((numero(v) - numero(prev)) * 10) / 10;
+      delta = '<div class="delta">' + (d > 0 ? "+" : "") + d.toLocaleString("es-CL") + ' ' + unidad + ' vs. anterior</div>';
+    }
+    return '<div class="sv-dato"><div class="k">' + k + '</div><div class="v">' + escapeHtml(v) + ' <small>' + unidad + '</small></div>' + delta + '</div>';
+  };
+  const datos = dato("Peso", ev.peso, "kg", anterior && anterior.peso) + dato("Cintura", ev.cintura, "cm", anterior && anterior.cintura);
+  const fuerza = (ev.fuerza || []).length
+    ? '<div class="sec">Test de fuerza</div><table><thead><tr><th>Ejercicio</th><th style="text-align:right">Test</th><th style="text-align:right">1RM est.</th></tr></thead><tbody>' +
+      ev.fuerza.map(f => '<tr><td>' + escapeHtml(f.ejercicio) + '</td><td class="n">' + escapeHtml(f.carga) + ' kg × ' + escapeHtml(f.reps) + '</td><td class="n">' + escapeHtml(fmtKg(numero(f.rm))) + ' kg</td></tr>').join("") +
+      '</tbody></table>'
+    : "";
+  return (datos ? '<div class="sv-datos">' + datos + '</div>' : '') +
+    fuerza +
+    (ev.notas ? '<div class="sec">Observaciones del profesor</div><div class="notas">' + escapeHtml(ev.notas) + '</div>' : '') +
+    (ev.imagenId ? '<div class="sec">Informe</div><button class="sv-informe" data-pt-img="' + escapeAttr(ev.imagenId) + '" data-fecha="' + escapeAttr(ev.fecha) + '">' +
+       '<img alt="Informe de la evaluación del ' + escapeAttr(ev.fecha) + '" data-pt-thumb="' + escapeAttr(ev.imagenId) + '"><span>Toca para ver el informe completo</span></button>' : '');
+}
+
+function renderPortalEvaluacion(){
+  const host = document.getElementById("ptPanelEval");
+  if(!Array.isArray(PT.evaluaciones)){
+    host.innerHTML = '<div class="sv-vacio">Tus evaluaciones estarán disponibles aquí muy pronto.</div>';
+    return;
+  }
+  const evs = PT.evaluaciones.slice().sort((a,b) => fechaNum(b.fecha) - fechaNum(a.fecha));
+  if(!evs.length){
+    host.innerHTML = '<div class="sv-vacio">Aún no tienes evaluaciones registradas.<br>Tu profesor las publicará aquí.</div>';
+    return;
+  }
+  const r = PT.rutina || {};
+  const ult = evs[0];
+  let html = '<div class="sv-ev"><h3>Evaluación del ' + escapeHtml(ult.fecha) + '</h3>' +
+    '<div class="sub">' + (evs.length > 1 ? 'La más reciente' : 'Tu evaluación') +
+      (r.evaluacionId === ult.id ? ' · tu rutina actual se basa en ella' : '') +
+      (r.proximaEvaluacion ? ' · próxima: ' + escapeHtml(r.proximaEvaluacion) : '') + '</div>' +
+    bloqueEvaluacion(ult, evs[1]) + '</div>';
+  if(evs.length > 1){
+    html += '<div class="sv-resumen" style="margin-top:18px">Evaluaciones anteriores</div>';
+    evs.slice(1).forEach((ev, i) => {
+      html += '<details class="sv-ev"><summary>' + escapeHtml(ev.fecha) + '</summary>' + bloqueEvaluacion(ev, evs[i + 2]) + '</details>';
+    });
+  }
+  host.innerHTML = html;
+  const cargar = id => PORTAL.imagen(PT.rut, PT.pin, id);
+  host.querySelectorAll("button[data-pt-img]").forEach(b => b.onclick = () => verImagen(b.dataset.ptImg, "Informe del " + b.dataset.fecha, cargar));
+  const pintar = async img => {
+    if(img.src) return;
+    try{ const src = await cargar(img.dataset.ptThumb); if(src) img.src = src; else img.closest(".sv-informe").querySelector("span").textContent = "Informe no disponible"; }
+    catch(e){ console.error(e); img.closest(".sv-informe").querySelector("span").textContent = "No se pudo cargar el informe"; }
+  };
+  host.querySelectorAll("details.sv-ev").forEach(d => d.addEventListener("toggle", () => { if(d.open) d.querySelectorAll("img[data-pt-thumb]").forEach(pintar); }));
+  host.querySelectorAll(".sv-ev:not(details) img[data-pt-thumb]").forEach(pintar);
 }
 
 function portalOlvidar(){
@@ -1836,6 +2124,7 @@ function renderPortal(){
     const hecho = !!PT_HECHOS[ptSesionSel + ":" + e];
     const pills = [];
     if(ej.series || ej.reps) pills.push('<span class="sv-pill fuerte">' + escapeHtml(ej.series || "—") + ' × ' + escapeHtml(ej.reps || "—") + '</span>');
+    if(ej.kg) pills.push('<span class="sv-pill carga">' + escapeHtml(ej.kg) + ' kg</span>');
     if(ej.descanso && ej.descanso !== "—") pills.push('<span class="sv-pill">Descanso ' + escapeHtml(ej.descanso) + '</span>');
     return '<div class="sv-ej' + (hecho ? ' hecho' : '') + '">' +
       '<div class="sv-fig">' + figuraEjercicio(ej.nombre) + '<div class="sv-num">' + (e + 1) + '</div></div>' +
@@ -1892,9 +2181,10 @@ async function refrescarPortal(){
     const data = await PORTAL.abrir(PT.rut, PT.pin);
     if(!data){ portalSalir(); return; }
     const cambio = JSON.stringify(data.rutina) !== JSON.stringify(PT.rutina);
-    Object.assign(PT, { nombre: data.nombre, rutina: data.rutina, registros: data.registros || [], controlRPE: !!data.controlRPE });
+    Object.assign(PT, { nombre: data.nombre, rutina: data.rutina, registros: data.registros || [], controlRPE: !!data.controlRPE, evaluaciones: data.evaluaciones });
     if(cambio){ PT_HECHOS = {}; guardarHechos(); ptSesionSel = Math.max(0, proximaSesion(PT.rutina, PT.registros)); toast("Tu profesor actualizó tu rutina."); }
     renderPortal();
+    if(ptPestana === "eval" && !document.querySelector("#ptPanelEval details[open]") && document.getElementById("visor").className.indexOf("abierto") < 0) renderPortalEvaluacion();
   }catch(e){ console.error(e); }
 }
 
@@ -1908,6 +2198,11 @@ async function iniciarPortal(){
   document.getElementById("ptPin").addEventListener("keydown", e => { if(e.key === "Enter") portalEntrar(); });
   document.getElementById("btnPortalSalir").addEventListener("click", portalSalir);
   document.getElementById("btnPortalRegistrar").addEventListener("click", portalRegistrar);
+  document.getElementById("ptTabSesion").addEventListener("click", () => mostrarPestanaPortal("sesion"));
+  document.getElementById("ptTabEval").addEventListener("click", () => mostrarPestanaPortal("eval"));
+  document.getElementById("visorCerrar").addEventListener("click", cerrarVisor);
+  document.getElementById("visor").addEventListener("click", e => { if(e.target.id === "visor") cerrarVisor(); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") cerrarVisor(); });
   document.addEventListener("visibilitychange", refrescarPortal);
   setInterval(refrescarPortal, 60000);
   let guardado = sessionStorage.getItem("gym-portal");
@@ -2354,6 +2649,10 @@ async function init(){
   document.getElementById("btnGuardarRutina").addEventListener("click", guardarRutina);
   document.getElementById("btnCompartirPortal").addEventListener("click", compartirPortal);
   document.getElementById("btnAgregarEvaluacion").addEventListener("click", agregarEvaluacion);
+  document.getElementById("btnCancelarEval").addEventListener("click", cancelarEdicionEval);
+  document.getElementById("btnAgregarFuerza").addEventListener("click", agregarFilaFuerza);
+  document.getElementById("rutBaseEval").addEventListener("change", renderRutinaEditor);
+  renderFuerzaEditor();
 
   document.getElementById("inpRut").addEventListener("input", (e)=>{
     e.target.value = formatRut(e.target.value);
