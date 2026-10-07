@@ -299,11 +299,17 @@
   .sv-resumen{font-size:13px; color:var(--muted); margin:0 2px 10px}
   .sv-resumen strong{color:var(--teal-d)}
   .sv-ses-titulo{font-family:'Fraunces',serif; font-weight:600; font-size:19px; color:var(--ink); margin-bottom:2px}
-  .sv-ej{display:grid; grid-template-columns:30px 1fr 52px; gap:10px; align-items:start; background:var(--surface);
+  .sv-ej{display:grid; grid-template-columns:58px 1fr 52px; gap:10px; align-items:start; background:var(--surface);
     border:1px solid var(--border); border-radius:14px; padding:14px 12px; margin-bottom:10px; transition:background .15s, border-color .15s}
   .sv-ej.hecho{background:var(--teal-l); border-color:#BFD9D4}
   .sv-ej.hecho .sv-nombre{color:var(--teal-d)}
   .sv-num{width:28px; height:28px; border-radius:50%; background:var(--bg2); display:grid; place-items:center; font:700 13px 'Space Mono',monospace; color:var(--brass-d)}
+  .sv-fig{position:relative; width:58px; height:58px; border-radius:12px; background:var(--bg2); color:var(--teal-d); display:grid; place-items:center}
+  .sv-fig .fig-ej{width:50px; height:50px}
+  .sv-fig .sv-num{position:absolute; top:-7px; left:-7px; width:22px; height:22px; font-size:11px; background:var(--surface); border:1px solid var(--border)}
+  .sv-ej.hecho .sv-fig{background:#fff}
+  .cat-ej{display:flex; gap:10px; align-items:center}
+  .cat-fig{flex:0 0 auto; width:38px; height:38px; padding:3px; border-radius:8px; background:var(--bg2); color:var(--teal-d)}
   .sv-nombre{font-family:'Fraunces',serif; font-weight:600; font-size:17px; line-height:1.25}
   .sv-pills{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 4px}
   .sv-pill{background:var(--bg2); border-radius:8px; padding:4px 9px; font:600 12.5px 'Public Sans',sans-serif; color:var(--ink)}
@@ -1041,6 +1047,71 @@ const GRUPOS_EJ = [
 ];
 const NOMBRE_GRUPO = Object.fromEntries(GRUPOS_EJ);
 
+
+// ============================================================
+// FIGURAS DE EJERCICIOS (pictogramas 48x48)
+// ============================================================
+const FIG_DATA = {"pie":[["h",24,8],["l",[[24,12],[24,28]]],["l",[[20,43],[24,28],[28,43]]],["l",[[19,26],[24,16],[29,26]]]],"sentadilla":[["t",[[6,16],[42,16]]],["r",4,11,4,10],["r",40,11,4,10],["h",24,9],["l",[[24,13],[24,27]]],["l",[[17,15],[19,20],[24,17],[29,20],[31,15]]],["l",[[15,43],[14,33],[24,27],[34,33],[33,43]]]],"zancada":[["h",22,8],["l",[[22,12],[22,27]]],["l",[[32,43],[32,33],[22,27],[17,36],[16,42],[9,43]]],["l",[[22,15],[24,25]]],["r",21,25,6,4]],"step":[["t",[[26,34],[42,34],[42,44],[26,44]]],["h",22,8],["l",[[22,12],[22,26]]],["l",[[31,34],[31,29],[22,26],[19,35],[17,43]]],["l",[[22,15],[20,25]]],["r",17,25,6,4]],"prensa":[["t",[[6,42],[11,18]]],["t",[[6,42],[20,42]]],["t",[[35,14],[42,34]]],["h",11,14],["l",[[12,19],[16,36]]],["l",[[16,36],[25,21],[37,25]]],["l",[[13,22],[19,31]]]],"ext_cuad":[["t",[[10,12],[10,34],[30,34]]],["h",16,8],["l",[[16,12],[16,30],[29,30],[41,25]]],["l",[[16,15],[22,26]]],["c",41,29,2.5]],"bisagra":[["h",37,13],["l",[[33,17],[19,26],[25,33],[24,43]]],["l",[[31,19],[30,32]]],["c",30,35,5]],"puente":[["t",[[4,28],[14,28]]],["t",[[6,28],[6,44]]],["h",8,22],["l",[[12,26],[27,20],[35,27],[36,43]]],["c",27,15,4.5]],"curl_femoral":[["t",[[4,34],[38,34]]],["t",[[10,34],[10,44]]],["t",[[32,34],[32,44]]],["h",7,26],["l",[[11,30],[27,30],[37,30],[37,18]]],["l",[[13,30],[8,34]]],["c",39,20,2.5]],"gemelos":[["t",[[18,41],[34,41],[34,44]]],["h",24,7],["l",[[24,11],[24,27],[24,37],[28,40]]],["l",[[24,14],[22,26]]],["t",[[34,32],[34,22]]],["t",[[31,25],[34,22],[37,25]]]],"press_banca":[["t",[[6,32],[38,32]]],["t",[[10,32],[10,42]]],["t",[[34,32],[34,42]]],["h",8,27],["l",[[12,29],[28,29],[36,22],[39,42]]],["l",[[15,29],[15,14]]],["c",15,11,4.5]],"flexion":[["t",[[4,44],[44,44]]],["h",9,26],["l",[[13,29],[43,41]]],["l",[[15,30],[15,43]]]],"fondos":[["t",[[8,24],[40,24]]],["t",[[10,24],[10,44]]],["t",[[38,24],[38,44]]],["h",24,8],["l",[[24,12],[24,28],[22,36],[28,40]]],["l",[[24,15],[17,20],[18,24]]]],"jalon":[["t",[[8,5],[40,5]]],["h",24,14],["l",[[24,18],[24,31]]],["l",[[14,6],[16,15],[24,20],[32,15],[34,6]]],["l",[[24,31],[33,32],[33,43]]]],"remo":[["t",[[41,22],[41,38]]],["t",[[23,25],[41,28]]],["h",15,9],["l",[[16,13],[18,31]]],["l",[[18,31],[38,31]]],["l",[[17,17],[10,22],[23,25]]]],"press_hombro":[["h",24,13],["l",[[24,17],[24,30]]],["l",[[20,43],[24,30],[28,43]]],["l",[[14,8],[14,18],[24,19],[34,18],[34,8]]],["r",10,5,8,4],["r",30,5,8,4]],"elev_lateral":[["h",24,10],["l",[[24,14],[24,29]]],["l",[[20,43],[24,29],[28,43]]],["l",[[9,18],[24,17],[39,18]]],["r",5,16,4,6],["r",39,16,4,6]],"curl":[["h",24,8],["l",[[24,12],[24,28]]],["l",[[20,43],[24,28],[28,43]]],["l",[[17,13],[18,25],[24,16],[30,26]]],["r",14,10,6,4],["r",28,26,4,6]],"triceps":[["t",[[30,4],[30,31]]],["c",30,5,2.2],["h",18,8],["l",[[18,12],[18,29]]],["l",[[15,43],[18,29],[21,43]]],["l",[[19,15],[21,25],[29,31]]]],"plancha":[["t",[[4,44],[44,44]]],["h",9,28],["l",[[13,31],[43,41]]],["l",[[14,32],[14,43],[21,43]]]],"plancha_lateral":[["t",[[4,44],[44,44]]],["h",9,24],["l",[[12,28],[43,41]]],["l",[[13,29],[13,43]]],["l",[[14,29],[16,14]]]],"crunch":[["t",[[4,44],[44,44]]],["h",11,30],["l",[[15,33],[27,42],[33,31],[40,42]]],["l",[[16,34],[11,26]]]],"bicho":[["t",[[4,44],[44,44]]],["h",8,39],["l",[[12,40],[29,40]]],["l",[[15,40],[15,25]]],["l",[[29,40],[29,28],[41,28]]]],"superman":[["t",[[4,44],[44,44]]],["h",10,34],["l",[[13,38],[32,39],[44,33]]],["l",[[14,37],[3,31]]]],"cuadrupedia":[["t",[[4,44],[44,44]]],["h",7,25],["l",[[11,28],[29,28]]],["l",[[13,28],[13,43]]],["l",[[29,28],[29,43]]],["l",[[11,28],[2,22]]],["l",[[29,28],[44,25]]]],"patada":[["t",[[16,4],[16,44]]],["h",26,8],["l",[[25,12],[25,28],[26,43]]],["l",[[25,28],[39,33]]],["l",[[25,16],[17,22]]]],"bicicleta":[["t",[[10,43],[42,43]]],["t",[[15,24],[23,24]]],["t",[[19,24],[24,40],[34,18],[39,18]]],["o",32,36,6],["h",32,7],["l",[[19,22],[29,12],[37,18]]],["l",[[19,22],[29,27],[25,36]]]],"correr":[["t",[[4,44],[44,44]]],["h",28,8],["l",[[27,12],[23,27]]],["l",[[17,17],[21,22],[26,16],[32,21],[35,17]]],["l",[[13,34],[19,35],[23,27],[30,33],[28,42]]]],"caminar":[["h",23,8],["l",[[23,12],[23,27]]],["l",[[17,42],[23,27],[30,42]]],["l",[[20,25],[23,15],[26,25]]],["r",16,25,5,7],["r",24,25,5,7]],"saltar":[["t",[[8,46],[40,46]]],["h",24,9],["l",[[24,13],[24,28]]],["l",[[15,6],[24,16],[33,6]]],["l",[[16,40],[24,28],[32,40]]]],"elongacion":[["t",[[4,44],[44,44]]],["h",33,22],["l",[[16,42],[29,27]]],["l",[[16,42],[42,42]]],["l",[[28,28],[41,38]]]]};
+const FIG_REGLAS = [
+  [/elongaci|isquio|flexores de cadera|movilidad/, "elongacion"],
+  [/gato|camello|toracic|bird dog/, "cuadrupedia"],
+  [/bici/, "bicicleta"],
+  [/remoergometro/, "remo"],
+  [/farmer|granjero/, "caminar"],
+  [/eliptica|trotadora|caminata|cardio|hiit|correr|trote/, "correr"],
+  [/cuerda|burpee|salto|jumping/, "saltar"],
+  [/swing|kettlebell/, "bisagra"],
+  [/thruster/, "press_hombro"],
+  [/plancha lateral/, "plancha_lateral"],
+  [/plancha|rueda abdominal/, "plancha"],
+  [/bicho muerto|dead bug/, "bicho"],
+  [/superman/, "superman"],
+  [/crunch|abdominal/, "crunch"],
+  [/talon|gemelo|pantorrilla/, "gemelos"],
+  [/femoral/, "curl_femoral"],
+  [/hip thrust|puente/, "puente"],
+  [/patada|abduccion|aduccion/, "patada"],
+  [/peso muerto|rumano/, "bisagra"],
+  [/prensa/, "prensa"],
+  [/cuadriceps/, "ext_cuad"],
+  [/step/, "step"],
+  [/zancada|bulgara|estocada|lunge/, "zancada"],
+  [/sentadilla|squat/, "sentadilla"],
+  [/jalon|dominada|pull-over|pull over/, "jalon"],
+  [/press banca|press de pecho|press inclinado|apertura|pecho/, "press_banca"],
+  [/flexion|push/, "flexion"],
+  [/fondos/, "fondos"],
+  [/remo|face pull|trx/, "remo"],
+  [/vuelos|lateral|cruce/, "elev_lateral"],
+  [/press militar|frontal|hombro|arnold/, "press_hombro"],
+  [/triceps|press frances/, "triceps"],
+  [/curl|biceps|martillo/, "curl"],
+  [/pallof/, "pie"]
+];
+const FIG_GRUPO = { cuadriceps:"sentadilla", posterior:"bisagra", pecho:"press_banca", espalda:"remo", hombro:"press_hombro",
+  brazos:"curl", core:"plancha", complejos:"saltar", cardio:"correr", movilidad:"elongacion" };
+function claveFigura(nombre, grupo){
+  const n = String(nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  for(const [re, k] of FIG_REGLAS) if(re.test(n)) return k;
+  return FIG_GRUPO[grupo] || "pie";
+}
+function figuraEjercicio(nombre, grupo, clase){
+  const k = claveFigura(nombre, grupo);
+  const partes = (FIG_DATA[k] || FIG_DATA.pie).map(e => {
+    if(e[0] === "h") return '<circle cx="' + e[1] + '" cy="' + e[2] + '" r="3.6" fill="currentColor"/>';
+    if(e[0] === "l" || e[0] === "t"){
+      const pts = e[1].map(p => p.join(",")).join(" ");
+      return '<polyline points="' + pts + '" fill="none" stroke="currentColor" stroke-width="' + (e[0] === "l" ? 3.2 : 1.6) +
+        '" stroke-linecap="round" stroke-linejoin="round"' + (e[0] === "t" ? ' opacity=".5"' : '') + '/>';
+    }
+    if(e[0] === "o") return '<circle cx="' + e[1] + '" cy="' + e[2] + '" r="' + e[3] + '" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".5"/>';
+    if(e[0] === "c") return '<circle cx="' + e[1] + '" cy="' + e[2] + '" r="' + e[3] + '" fill="currentColor" opacity=".65"/>';
+    if(e[0] === "r") return '<rect x="' + e[1] + '" y="' + e[2] + '" width="' + e[3] + '" height="' + e[4] + '" rx="1" fill="currentColor" opacity=".65"/>';
+    return "";
+  }).join("");
+  return '<svg class="' + (clase || "fig-ej") + '" viewBox="0 0 48 48" aria-hidden="true">' + partes + '</svg>';
+}
+
 // [nombre, grupo, equipo, series, reps, descanso]
 const EJERCICIOS_BASE = [
   ["Sentadilla con barra","cuadriceps","Barra","4","8-10","90s"],
@@ -1261,7 +1332,7 @@ function renderCatalogo(){
   lista.forEach(e => {
     const def = [e.series && e.series + " × " + (e.reps || "—"), e.descanso && "desc. " + e.descanso].filter(Boolean).join(" · ");
     html += '<tr>' +
-      '<td><strong>' + escapeHtml(e.nombre) + '</strong>' + (e.descripcion ? '<div class="resumen-items">' + escapeHtml(e.descripcion) + '</div>' : '') + '</td>' +
+      '<td><div class="cat-ej">' + figuraEjercicio(e.nombre, e.grupo, "cat-fig") + '<div><strong>' + escapeHtml(e.nombre) + '</strong>' + (e.descripcion ? '<div class="resumen-items">' + escapeHtml(e.descripcion) + '</div>' : '') + '</div></div></td>' +
       '<td>' + escapeHtml(NOMBRE_GRUPO[e.grupo] || "Otros") + '</td>' +
       '<td>' + (e.equipo ? escapeHtml(e.equipo) : '<span class="muted-cell">—</span>') + '</td>' +
       '<td style="white-space:nowrap">' + (def ? escapeHtml(def) : '<span class="muted-cell">—</span>') + '</td>' +
@@ -1767,7 +1838,7 @@ function renderPortal(){
     if(ej.series || ej.reps) pills.push('<span class="sv-pill fuerte">' + escapeHtml(ej.series || "—") + ' × ' + escapeHtml(ej.reps || "—") + '</span>');
     if(ej.descanso && ej.descanso !== "—") pills.push('<span class="sv-pill">Descanso ' + escapeHtml(ej.descanso) + '</span>');
     return '<div class="sv-ej' + (hecho ? ' hecho' : '') + '">' +
-      '<div class="sv-num">' + (e + 1) + '</div>' +
+      '<div class="sv-fig">' + figuraEjercicio(ej.nombre) + '<div class="sv-num">' + (e + 1) + '</div></div>' +
       '<div class="sv-cuerpo">' +
         '<div class="sv-nombre">' + escapeHtml(ej.nombre || "(sin nombre)") + '</div>' +
         (pills.length ? '<div class="sv-pills">' + pills.join("") + '</div>' : '') +
