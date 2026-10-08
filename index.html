@@ -337,9 +337,23 @@
   .sv-vacio{background:var(--surface); border:1px dashed var(--border); border-radius:14px; padding:28px 18px; text-align:center; color:var(--muted); line-height:1.5}
   body.modo-socio .aviso-rpe{margin:0 0 12px}
   .sv-pill.carga{background:var(--brass); color:#fff; font-family:'Space Mono',monospace; font-size:14px}
-  .sv-tabs{display:grid; grid-template-columns:1fr 1fr; gap:4px; background:var(--bg2); border-radius:12px; padding:4px; margin:0 0 14px}
+  .sv-tabs{display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; background:var(--bg2); border-radius:12px; padding:4px; margin:0 0 14px}
   .sv-tab{border:0; background:transparent; border-radius:9px; padding:11px 8px; font:700 14px 'Public Sans',sans-serif; color:var(--muted); cursor:pointer}
   .sv-tab[aria-selected="true"]{background:var(--surface); color:var(--teal-d); box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .sv-hist-res{font-size:13.5px; color:var(--muted); margin:0 0 12px; line-height:1.5}
+  .sv-hist-res strong{color:var(--ink, inherit)}
+  details.sv-reg{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin-bottom:8px}
+  details.sv-reg summary{cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:10px; align-items:baseline}
+  details.sv-reg summary::-webkit-details-marker{display:none}
+  details.sv-reg .f{font-weight:700; font-size:14.5px}
+  details.sv-reg .s{font-size:13px; color:var(--muted); margin-top:2px}
+  details.sv-reg .c{font-size:12.5px; font-weight:700; color:var(--teal-d); white-space:nowrap}
+  details.sv-reg ul{list-style:none; margin:10px 0 0; padding:10px 0 0; border-top:1px solid var(--border)}
+  details.sv-reg li{font-size:13.5px; padding:3px 0; display:flex; gap:8px}
+  details.sv-reg li .m{width:16px; flex:none; text-align:center; font-weight:700; color:var(--teal-d)}
+  details.sv-reg li.no{color:var(--muted)}
+  details.sv-reg li.no .m{color:var(--muted)}
+  details.sv-reg .com{font-size:13px; color:var(--muted); margin-top:8px; font-style:italic}
   .sv-tab:focus-visible{outline:3px solid var(--brass); outline-offset:2px}
   .sv-ev{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px}
   .sv-ev h3{font-family:'Fraunces',serif; font-size:19px; margin:0 0 2px}
@@ -430,6 +444,7 @@
         <div class="sv-tabs" role="tablist" aria-label="Secciones">
           <button class="sv-tab" role="tab" id="ptTabSesion" aria-selected="true" aria-controls="ptPanelSesion">Mi sesión</button>
           <button class="sv-tab" role="tab" id="ptTabEval" aria-selected="false" aria-controls="ptPanelEval">Mi evaluación</button>
+          <button class="sv-tab" role="tab" id="ptTabHist" aria-selected="false" aria-controls="ptPanelHist">Mi registro</button>
         </div>
         <div id="ptPanelSesion" role="tabpanel" aria-labelledby="ptTabSesion">
           <div class="aviso-rpe" id="ptAviso" style="display:none">Controla la intensidad por esfuerzo percibido (RPE), no por frecuencia cardíaca ni pulsómetro.</div>
@@ -440,6 +455,7 @@
           <p class="sv-pie" id="ptPie"></p>
         </div>
         <div id="ptPanelEval" role="tabpanel" aria-labelledby="ptTabEval" style="display:none"></div>
+        <div id="ptPanelHist" role="tabpanel" aria-labelledby="ptTabHist" style="display:none"></div>
       </div>
     </div>
   </div>
@@ -2002,8 +2018,11 @@ function mostrarPestanaPortal(cual){
   document.getElementById("ptTabSesion").setAttribute("aria-selected", cual === "sesion");
   document.getElementById("ptTabEval").setAttribute("aria-selected", cual === "eval");
   document.getElementById("ptPanelSesion").style.display = cual === "sesion" ? "" : "none";
+  document.getElementById("ptTabHist").setAttribute("aria-selected", cual === "hist");
   document.getElementById("ptPanelEval").style.display = cual === "eval" ? "" : "none";
+  document.getElementById("ptPanelHist").style.display = cual === "hist" ? "" : "none";
   if(cual === "eval") renderPortalEvaluacion();
+  if(cual === "hist") renderPortalHistorial();
   window.scrollTo({ top: 0 });
 }
 
@@ -2064,6 +2083,34 @@ function renderPortalEvaluacion(){
   };
   host.querySelectorAll("details.sv-ev").forEach(d => d.addEventListener("toggle", () => { if(d.open) d.querySelectorAll("img[data-pt-thumb]").forEach(pintar); }));
   host.querySelectorAll(".sv-ev:not(details) img[data-pt-thumb]").forEach(pintar);
+}
+
+// Historial de sesiones realizadas por el socio (pestaña "Mi registro")
+function renderPortalHistorial(){
+  const host = document.getElementById("ptPanelHist");
+  const regs = (PT.registros || []).slice().sort((a,b)=> String(b.id).localeCompare(String(a.id)));
+  if(!regs.length){
+    host.innerHTML = '<div class="sv-vacio">Aún no registras sesiones.<br>Al terminar tu entrenamiento, marca los ejercicios y pulsa <strong>Terminé esta sesión</strong> en <em>Mi sesión</em>.</div>';
+    return;
+  }
+  const vd = PT.rutina && PT.rutina.vigenteDesde ? fechaNum(PT.rutina.vigenteDesde) : 0;
+  const conRutina = vd ? regs.filter(r => fechaNum(r.fecha) >= vd).length : 0;
+  let html = '<div class="sv-hist-res"><strong>' + regs.length + '</strong> sesión(es) registrada(s)' +
+    (vd ? ' · <strong>' + conRutina + '</strong> con tu rutina actual (desde ' + escapeHtml(PT.rutina.vigenteDesde) + ')' : '') + '</div>';
+  html += regs.map((r, i) => {
+    const items = r.items || [];
+    const hechos = items.filter(x => x.hecho).length;
+    return '<details class="sv-reg"' + (i === 0 ? ' open' : '') + '><summary>' +
+      '<div><div class="f">' + escapeHtml(r.fecha) + (r.hora ? ' · ' + escapeHtml(r.hora) : '') + '</div>' +
+      '<div class="s">' + escapeHtml(r.sesionNombre || "Sesión") + '</div></div>' +
+      '<div class="c">' + hechos + '/' + items.length + ' ejercicios</div></summary>' +
+      '<ul>' + items.map(x => '<li class="' + (x.hecho ? 'si' : 'no') + '"><span class="m">' + (x.hecho ? '✓' : '–') + '</span><span>' +
+        escapeHtml(x.nombre || "") + (x.carga ? ' · ' + escapeHtml(x.carga) : '') + (x.reps ? ' × ' + escapeHtml(x.reps) : '') + '</span></li>').join("") + '</ul>' +
+      (r.rpe ? '<div class="com">Esfuerzo (RPE): ' + escapeHtml(r.rpe) + '</div>' : '') +
+      (r.comentario ? '<div class="com">«' + escapeHtml(r.comentario) + '»</div>' : '') +
+    '</details>';
+  }).join("");
+  host.innerHTML = html;
 }
 
 function portalOlvidar(){
@@ -2184,6 +2231,7 @@ async function refrescarPortal(){
     Object.assign(PT, { nombre: data.nombre, rutina: data.rutina, registros: data.registros || [], controlRPE: !!data.controlRPE, evaluaciones: data.evaluaciones });
     if(cambio){ PT_HECHOS = {}; guardarHechos(); ptSesionSel = Math.max(0, proximaSesion(PT.rutina, PT.registros)); toast("Tu profesor actualizó tu rutina."); }
     renderPortal();
+    if(ptPestana === "hist" && document.querySelectorAll("#ptPanelHist details.sv-reg").length !== PT.registros.length) renderPortalHistorial();
     if(ptPestana === "eval" && !document.querySelector("#ptPanelEval details[open]") && document.getElementById("visor").className.indexOf("abierto") < 0) renderPortalEvaluacion();
   }catch(e){ console.error(e); }
 }
@@ -2200,6 +2248,7 @@ async function iniciarPortal(){
   document.getElementById("btnPortalRegistrar").addEventListener("click", portalRegistrar);
   document.getElementById("ptTabSesion").addEventListener("click", () => mostrarPestanaPortal("sesion"));
   document.getElementById("ptTabEval").addEventListener("click", () => mostrarPestanaPortal("eval"));
+  document.getElementById("ptTabHist").addEventListener("click", () => mostrarPestanaPortal("hist"));
   document.getElementById("visorCerrar").addEventListener("click", cerrarVisor);
   document.getElementById("visor").addEventListener("click", e => { if(e.target.id === "visor") cerrarVisor(); });
   document.addEventListener("keydown", e => { if(e.key === "Escape") cerrarVisor(); });
