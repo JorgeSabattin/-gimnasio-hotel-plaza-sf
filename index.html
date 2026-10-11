@@ -1171,7 +1171,7 @@ const FIG_REGLAS = [
 const FIG_GRUPO = { cuadriceps:"sentadilla", posterior:"bisagra", pecho:"press_banca", espalda:"remo", hombro:"press_hombro",
   brazos:"curl", core:"plancha", complejos:"saltar", cardio:"correr", movilidad:"elongacion" };
 function claveFigura(nombre, grupo){
-  const n = String(nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const n = String(nombre || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   for(const [re, k] of FIG_REGLAS) if(re.test(n)) return k;
   return FIG_GRUPO[grupo] || "pie";
 }
