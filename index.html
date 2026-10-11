@@ -288,6 +288,14 @@
   @media (max-width:800px){ .fuerza-row{grid-template-columns:1fr 1fr 1fr} .fuerza-row select{grid-column:1/-1} }
   .eval-editando{background:#FBEBD9; border:1px solid #E6C9A0; color:#7A4A12; border-radius:var(--radius-sm); padding:8px 12px; font-size:13px; margin-bottom:10px; display:none}
   .eval-editando.show{display:block}
+  details.ev-extra{margin:0}
+  .ev-extra h4{font:700 11.5px 'Public Sans',sans-serif; text-transform:uppercase; letter-spacing:.06em; color:var(--brass-d); margin:12px 0 8px}
+  .ev-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+  .ev-grid .field{margin:0}
+  .ev-grid label{text-transform:none; letter-spacing:0; font-size:12px}
+  .ev-grid input{padding:8px 10px; font-size:13px}
+  .sv-ev td.n .dl{color:var(--muted); font-weight:400; font-size:12px; margin-left:4px}
+  .sv-ev .fuente{font-size:12.5px; color:var(--muted); margin:-4px 0 10px}
 
   /* ---------- Vista del socio (celular) ---------- */
   body.modo-socio .wrap{max-width:560px; padding:0 0 calc(40px + env(safe-area-inset-bottom))}
@@ -590,6 +598,10 @@
             <label for="evalNotas">Notas</label>
             <input type="text" id="evalNotas" placeholder="Observaciones de la evaluación">
           </div>
+          <details class="antecedentes ev-extra" id="evalExtra" style="grid-column:1/-1">
+            <summary>Composición corporal y signos vitales <span class="solo-staff">opcional · el socio también lo ve</span></summary>
+            <div id="evalExtraGrid"></div>
+          </details>
           <div class="field" style="grid-column:1/-1">
             <label for="evalImagen">Informe (imagen, opcional)</label>
             <input type="file" id="evalImagen" accept="image/*">
@@ -1577,8 +1589,10 @@ function tituloCarga(c){
 }
 // Lo que el socio puede ver de una evaluación (sin antecedentes de salud)
 function evaluacionParaSocio(ev){
-  return { id: ev.id, fecha: ev.fecha, peso: ev.peso || "", cintura: ev.cintura || "", notas: ev.notas || "",
-           fuerza: ev.fuerza || [], imagenId: ev.imagenId || "" };
+  const o = { id: ev.id, fecha: ev.fecha, peso: ev.peso || "", cintura: ev.cintura || "", notas: ev.notas || "",
+              fuerza: ev.fuerza || [], imagenId: ev.imagenId || "" };
+  EVAL_CAMPOS.forEach(([k]) => { if(lleno(ev[k])) o[k] = ev[k]; });
+  return o;
 }
 
 // ============================================================
@@ -1773,6 +1787,70 @@ function escapeAttr(s){
 // ============================================================
 // LÓGICA: EVALUACIONES
 // ============================================================
+// Campos adicionales de la evaluación (Fitdays / BodyPro / ficha del profesor). [clave, etiqueta, unidad]
+const EVAL_GRUPOS = [
+  { t:"Composición corporal", campos:[
+    ["fuente","Equipo / informe",""],
+    ["grasaPct","Grasa corporal","%"],
+    ["masaGrasa","Masa grasa","kg"],
+    ["masaMuscular","Masa muscular","kg"],
+    ["musculoEsq","Músculo esquelético","kg"],
+    ["masaOsea","Masa ósea","kg"],
+    ["proteina","Proteína","kg"],
+    ["agua","Agua corporal","kg"],
+    ["pesoSinGrasa","Peso sin grasa","kg"],
+    ["grasaSubcut","Grasa subcutánea","%"],
+    ["grasaVisceral","Grasa visceral","nivel"],
+    ["imc","IMC","kg/m²"],
+    ["bmr","Metabolismo basal","kcal"],
+    ["edadCorporal","Edad corporal","años"],
+    ["whr","Índice cintura/cadera",""],
+    ["puntaje","Puntuación corporal","/100"]
+  ]},
+  { t:"Perímetros", campos:[
+    ["abdomen","Abdomen","cm"],
+    ["cadera","Cadera","cm"]
+  ]},
+  { t:"Signos vitales", campos:[
+    ["presion","Presión arterial","mmHg"],
+    ["fcReposo","FC en reposo","lpm"],
+    ["saturacion","Saturación O₂","%"]
+  ]}
+];
+const EVAL_CAMPOS = EVAL_GRUPOS.reduce((a, g) => a.concat(g.campos), []);
+const EVAL_TEXTO = ["fuente", "presion"];   // no numéricos: sin diferencia vs. anterior
+const lleno = v => v != null && String(v).trim() !== "";
+
+function construirCamposEval(){
+  document.getElementById("evalExtraGrid").innerHTML = EVAL_GRUPOS.map(g =>
+    '<h4>' + g.t + '</h4><div class="ev-grid">' + g.campos.map(([k, label, u]) =>
+      '<div class="field"><label for="ev_' + k + '">' + label + (u && u !== "/100" ? ' (' + u + ')' : '') + '</label>' +
+      '<input type="text" id="ev_' + k + '" autocomplete="off"' + (EVAL_TEXTO.includes(k) ? '' : ' inputmode="decimal"') +
+      (k === "fuente" ? ' placeholder="Fitdays, BodyPro…"' : k === "presion" ? ' placeholder="110/75"' : '') + '></div>'
+    ).join("") + '</div>'
+  ).join("");
+}
+function camposEvalListos(){ const g = document.getElementById("evalExtraGrid"); return !!(g && g.children.length); }
+function leerExtrasEval(){
+  const o = {};
+  if(camposEvalListos()) EVAL_CAMPOS.forEach(([k]) => { o[k] = document.getElementById("ev_" + k).value.trim().replace(",", EVAL_TEXTO.includes(k) ? "," : "."); });
+  return o;
+}
+function escribirExtrasEval(ev){
+  if(!camposEvalListos()) return;
+  EVAL_CAMPOS.forEach(([k]) => { document.getElementById("ev_" + k).value = (ev && ev[k]) || ""; });
+  document.getElementById("evalExtra").open = !!(ev && EVAL_CAMPOS.some(([k]) => lleno(ev[k])));
+}
+function fmtValorEval(v, u){
+  if(!u || u === "nivel") return escapeHtml(v);
+  return escapeHtml(v) + (u === "/100" || u === "%" ? u : " " + u);
+}
+function difEval(k, v, prev){
+  if(EVAL_TEXTO.includes(k) || !lleno(prev) || !numero(v) || !numero(prev)) return "";
+  const d = Math.round((numero(v) - numero(prev)) * 10) / 10;
+  return '<span class="dl">(' + (d > 0 ? "+" : "") + d.toLocaleString("es-CL") + ')</span>';
+}
+
 let fuerzaEnEdicion = [];   // [{ejercicio, carga, reps}] del formulario de evaluación
 let evalEditandoId = null;   // id de la evaluación que se está editando, o null si es nueva
 
@@ -1807,6 +1885,7 @@ function cancelarEdicionEval(){
   document.getElementById("btnAgregarEvaluacion").textContent = "Agregar evaluación";
   document.getElementById("btnCancelarEval").style.display = "none";
   document.getElementById("evalEditando").classList.remove("show");
+  escribirExtrasEval(null);
   renderFuerzaEditor();
 }
 function editarEvaluacion(evalId){
@@ -1818,6 +1897,7 @@ function editarEvaluacion(evalId){
   document.getElementById("evalCintura").value = ev.cintura || "";
   document.getElementById("evalNotas").value = ev.notas || "";
   document.getElementById("evalImagen").value = "";
+  escribirExtrasEval(ev);
   fuerzaEnEdicion = (ev.fuerza || []).map(f => ({ ejercicio: f.ejercicio, carga: f.carga, reps: f.reps }));
   if(!fuerzaEnEdicion.length) agregarFilaFuerza(); else renderFuerzaEditor();
   document.getElementById("btnAgregarEvaluacion").textContent = "Guardar cambios";
@@ -1835,6 +1915,7 @@ async function agregarEvaluacion(){
   const cintura = document.getElementById("evalCintura").value.trim();
   const notas = document.getElementById("evalNotas").value.trim();
   const archivo = document.getElementById("evalImagen").files[0];
+  const extra = leerExtrasEval();
   if(!fechaNum(fecha)){ toast("La fecha debe tener formato dd-mm-aaaa.", true); return; }
   const filas = fuerzaEnEdicion.filter(f => f.ejercicio || String(f.carga).trim() || String(f.reps).trim());
   const incompleta = filas.find(f => !f.ejercicio || !estimarRM(f.carga, f.reps));
@@ -1843,7 +1924,7 @@ async function agregarEvaluacion(){
                                    rm: String(Math.round(estimarRM(f.carga, f.reps) * 10) / 10) }));
   const socio = SOCIOS[editandoRut];
   const editando = evalEditandoId ? (socio.evaluaciones || []).find(x => x.id === evalEditandoId) : null;
-  if(!editando && !peso && !cintura && !notas && !archivo && !fuerza.length){ toast("Ingresa al menos un dato de la evaluación.", true); return; }
+  if(!editando && !peso && !cintura && !notas && !archivo && !fuerza.length && !EVAL_CAMPOS.some(([k]) => extra[k])){ toast("Ingresa al menos un dato de la evaluación.", true); return; }
 
   let imagenId = editando ? editando.imagenId || "" : "";
   if(archivo){
@@ -1853,7 +1934,7 @@ async function agregarEvaluacion(){
   socio.evaluaciones = socio.evaluaciones || [];
   if(editando){
     const imgVieja = editando.imagenId;
-    Object.assign(editando, { fecha, peso, cintura, notas, imagenId, fuerza });
+    Object.assign(editando, { fecha, peso, cintura, notas, imagenId, fuerza }, extra);
     if(!(await guardarSocios())) return;
     if(imgVieja && imgVieja !== imagenId){ try{ await STORE.del("img:" + imgVieja); }catch(e){ console.error(e); } }
     const esBase = socio.rutina && socio.rutina.evaluacionId === editando.id;
@@ -1862,7 +1943,7 @@ async function agregarEvaluacion(){
     toast(esBase ? "Evaluación actualizada. Pulsa Guardar rutina para publicar las cargas nuevas." : "Evaluación actualizada.");
     return;
   }
-  socio.evaluaciones.push({ id:"e"+Date.now(), fecha, peso, cintura, notas, imagenId, fuerza });
+  socio.evaluaciones.push(Object.assign({ id:"e"+Date.now(), fecha, peso, cintura, notas, imagenId, fuerza }, extra));
   if(!(await guardarSocios())) return;
   toast("Evaluación agregada.");
 
@@ -1902,13 +1983,14 @@ function renderEvaluaciones(){
     host.innerHTML = '<div class="empty">Sin evaluaciones registradas todavía.</div>';
     return;
   }
-  evals.reverse();
-  let html = '<table><thead><tr><th>Fecha</th><th>Peso (kg)</th><th>Cintura (cm)</th><th>Test de fuerza</th><th>Notas</th><th>Informe</th><th></th></tr></thead><tbody>';
+  evals.sort((a,b) => fechaNum(b.fecha) - fechaNum(a.fecha));
+  let html = '<table><thead><tr><th>Fecha</th><th>Peso (kg)</th><th>Cintura (cm)</th><th>Composición y signos</th><th>Test de fuerza</th><th>Notas</th><th>Informe</th><th></th></tr></thead><tbody>';
   evals.forEach(ev=>{
     html += '<tr>' +
       '<td>' + escapeHtml(ev.fecha) + '</td>' +
       '<td>' + (ev.peso ? escapeHtml(ev.peso) : '<span class="muted-cell">—</span>') + '</td>' +
       '<td>' + (ev.cintura ? escapeHtml(ev.cintura) : '<span class="muted-cell">—</span>') + '</td>' +
+      '<td>' + (c => c.length ? '<div class="resumen-items">' + c.map(([k, l, u]) => escapeHtml(l) + ': <strong>' + fmtValorEval(ev[k], u) + '</strong>').join("<br>") + '</div>' : '<span class="muted-cell">—</span>')(EVAL_CAMPOS.filter(([k]) => lleno(ev[k]))) + '</td>' +
       '<td>' + ((ev.fuerza || []).length ? ev.fuerza.map(f => escapeHtml(f.ejercicio) + ': ' + escapeHtml(fmtKg(numero(f.rm))) + ' kg').join('<br>') : '<span class="muted-cell">—</span>') + '</td>' +
       '<td>' + (ev.notas ? escapeHtml(ev.notas) : '<span class="muted-cell">—</span>') + '</td>' +
       '<td style="white-space:nowrap">' + (ev.imagenId
@@ -2036,13 +2118,24 @@ function bloqueEvaluacion(ev, anterior){
     }
     return '<div class="sv-dato"><div class="k">' + k + '</div><div class="v">' + escapeHtml(v) + ' <small>' + unidad + '</small></div>' + delta + '</div>';
   };
-  const datos = dato("Peso", ev.peso, "kg", anterior && anterior.peso) + dato("Cintura", ev.cintura, "cm", anterior && anterior.cintura);
+  const TILES = [["peso","Peso","kg"], ["grasaPct","Grasa corporal","%"], ["masaMuscular","Masa muscular","kg"], ["cintura","Cintura","cm"]];
+  const datos = TILES.map(([k, l, u]) => dato(l, ev[k], u, anterior && anterior[k])).join("");
+  const enTiles = TILES.map(t => t[0]);
+  const tablas = EVAL_GRUPOS.map(g => {
+    const filas = g.campos.filter(([k]) => k !== "fuente" && !enTiles.includes(k) && lleno(ev[k]));
+    if(!filas.length) return "";
+    return '<div class="sec">' + g.t + '</div><table><tbody>' + filas.map(([k, l, u]) =>
+      '<tr><td>' + escapeHtml(l) + '</td><td class="n">' + fmtValorEval(ev[k], u) + difEval(k, ev[k], anterior && anterior[k]) + '</td></tr>'
+    ).join("") + '</tbody></table>';
+  }).join("");
   const fuerza = (ev.fuerza || []).length
     ? '<div class="sec">Test de fuerza</div><table><thead><tr><th>Ejercicio</th><th style="text-align:right">Test</th><th style="text-align:right">1RM est.</th></tr></thead><tbody>' +
       ev.fuerza.map(f => '<tr><td>' + escapeHtml(f.ejercicio) + '</td><td class="n">' + escapeHtml(f.carga) + ' kg × ' + escapeHtml(f.reps) + '</td><td class="n">' + escapeHtml(fmtKg(numero(f.rm))) + ' kg</td></tr>').join("") +
       '</tbody></table>'
     : "";
-  return (datos ? '<div class="sv-datos">' + datos + '</div>' : '') +
+  return (lleno(ev.fuente) ? '<div class="fuente">Informe: ' + escapeHtml(ev.fuente) + '</div>' : '') +
+    (datos ? '<div class="sv-datos">' + datos + '</div>' : '') +
+    tablas +
     fuerza +
     (ev.notas ? '<div class="sec">Observaciones del profesor</div><div class="notas">' + escapeHtml(ev.notas) + '</div>' : '') +
     (ev.imagenId ? '<div class="sec">Informe</div><button class="sv-informe" data-pt-img="' + escapeAttr(ev.imagenId) + '" data-fecha="' + escapeAttr(ev.fecha) + '">' +
@@ -2594,13 +2687,42 @@ async function importarSocios(file){
   if(!ruts.length){ toast("No se encontraron socios válidos en el archivo.", true); return; }
   const existentes = ruts.filter(r => SOCIOS[normRut(r)]);
   const msg = "Se importarán " + ruts.length + " socio(s)." +
-    (existentes.length ? "\n" + existentes.length + " ya existe(n) y su ficha, rutina y evaluaciones serán reemplazadas." : "") +
+    (existentes.length ? "\n" + existentes.length + " ya existe(n): se completarán con los datos del archivo. Las evaluaciones con la misma fecha se actualizan y las nuevas se agregan; la clave y la rutina se conservan si el archivo no las trae." : "") +
     "\n¿Continuar?";
   if(!confirm(msg)) return;
 
+  const imgsViejas = [];
   ruts.forEach(r => {
-    const e = entrantes[r];
-    SOCIOS[normRut(r)] = {
+    const e = entrantes[r], n = normRut(r), prev = SOCIOS[n];
+    if(prev){
+      ["nombre","telefono","telefonoContacto","direccion","objetivo","pin"].forEach(f => { if(lleno(e[f])) prev[f] = e[f]; });
+      if(e.antecedentes && typeof e.antecedentes === "object"){
+        prev.antecedentes = prev.antecedentes || {};
+        Object.keys(e.antecedentes).forEach(k => {
+          if(k === "parq" && e.antecedentes.parq && typeof e.antecedentes.parq === "object"){
+            prev.antecedentes.parq = prev.antecedentes.parq || {};
+            Object.keys(e.antecedentes.parq).forEach(q => { if(lleno(e.antecedentes.parq[q])) prev.antecedentes.parq[q] = e.antecedentes.parq[q]; });
+          } else if(lleno(e.antecedentes[k])) prev.antecedentes[k] = e.antecedentes[k];
+        });
+      }
+      if(e.controlRPE) prev.controlRPE = true;
+      if(e.rutina && (e.rutina.sesiones || []).length) prev.rutina = e.rutina;
+      prev.evaluaciones = prev.evaluaciones || [];
+      (e.evaluaciones || []).forEach(ne => {
+        if(!ne || !fechaNum(ne.fecha)) return;
+        const ex = prev.evaluaciones.find(x => fechaNum(x.fecha) === fechaNum(ne.fecha));
+        if(!ex){ prev.evaluaciones.push(Object.assign({ id: "e" + Date.now() + Math.random().toString(36).slice(2,6) }, ne)); return; }
+        Object.keys(ne).forEach(k => {
+          if(k === "id") return;
+          if(k === "fuerza"){ if(Array.isArray(ne.fuerza) && ne.fuerza.length) ex.fuerza = ne.fuerza; return; }
+          if(!lleno(ne[k])) return;
+          if(k === "imagenId" && ex.imagenId && ex.imagenId !== ne.imagenId) imgsViejas.push(ex.imagenId);
+          ex[k] = ne[k];
+        });
+      });
+      return;
+    }
+    SOCIOS[n] = {
       nombre: e.nombre, telefono: e.telefono || "", telefonoContacto: e.telefonoContacto || "",
       direccion: e.direccion || "", objetivo: e.objetivo || "", pin: e.pin || "",
       antecedentes: e.antecedentes || {}, controlRPE: !!e.controlRPE,
@@ -2621,6 +2743,7 @@ async function importarSocios(file){
   sincronizarCatalogo();
   await guardarEjercicios();
   if(await guardarSocios()){
+    for(const id of imgsViejas){ try{ await STORE.del("img:" + id); delete IMG_CACHE[id]; }catch(err){ console.error(err); } }
     toast(ruts.length + " socio(s) importado(s).");
     render();
     if(editandoRut && SOCIOS[editandoRut]) cargarSocioEnFormulario(editandoRut);
@@ -2676,6 +2799,7 @@ async function init(){
   document.getElementById("filtroSocios").addEventListener("input", renderSocios);
   document.getElementById("btnRespaldo").addEventListener("click", descargarRespaldo);
   construirAntecedentes();
+  construirCamposEval();
   document.getElementById("visorCerrar").addEventListener("click", cerrarVisor);
   document.getElementById("visor").addEventListener("click", e => { if(e.target.id === "visor") cerrarVisor(); });
   document.addEventListener("keydown", e => { if(e.key === "Escape") cerrarVisor(); });
