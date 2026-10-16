@@ -493,6 +493,7 @@
         <h2>Registro de socios</h2>
         <div class="filters" style="align-items:center">
           <span id="countSocios" style="color:var(--muted); font-size:12.5px"></span>
+          <button class="btn btn-primary btn-sm" id="btnNuevoSocio">+ Nuevo socio</button>
           <button class="btn btn-ghost btn-sm" id="btnImportar">Importar socios (JSON)</button>
           <button class="btn btn-ghost btn-sm" id="btnRespaldo">Descargar respaldo</button>
           <input type="file" id="fileImportar" accept=".json,application/json" style="display:none">
@@ -501,8 +502,8 @@
       <div class="desc" style="margin-top:-6px">Ficha con los datos de contacto de cada socio del gimnasio.</div>
 
       <div class="edit-note" id="editNote">
-        <span>Editando socio existente.</span>
-        <span class="link-inline" id="cancelarEdicion">Cancelar</span>
+        <span id="editNoteTxt">Editando socio existente.</span>
+        <span class="link-inline" id="cancelarEdicion">Cerrar ficha y crear nuevo socio</span>
       </div>
 
       <div class="form-grid">
@@ -552,7 +553,7 @@
       </details>
 
       <div class="form-actions">
-        <button class="btn btn-primary" id="btnGuardarSocio">Guardar socio</button>
+        <button class="btn btn-primary" id="btnGuardarSocio">Inscribir socio</button>
       </div>
 
       <div class="ficha-hint" id="fichaHint">Guarda al socio para poder asignarle una rutina y registrar evaluaciones.</div>
@@ -1055,6 +1056,15 @@ async function guardarFichaSocio(){
   if(!nombre){ toast("Falta el nombre del socio.", true); return; }
   if(pin && !/^\d{4,6}$/.test(pin)){ toast("La clave debe tener entre 4 y 6 dígitos.", true); return; }
 
+  if(editandoRut && norm !== editandoRut){
+    toast("No se puede cambiar el RUT de un socio existente. Para inscribir a otra persona pulsa «+ Nuevo socio».", true);
+    document.getElementById("socRut").value = formatRut(editandoRut);
+    return;
+  }
+  if(!editandoRut && SOCIOS[norm]){
+    if(confirm("Ya existe un socio con el RUT " + formatRut(norm) + " (" + SOCIOS[norm].nombre + "). ¿Abrir su ficha?")) cargarSocioEnFormulario(norm);
+    return;
+  }
   const esNuevo = !SOCIOS[norm];
   const existente = SOCIOS[norm] || {};
   SOCIOS[norm] = Object.assign({}, existente, {
@@ -1085,7 +1095,9 @@ function cargarSocioEnFormulario(rutNorm){
   document.getElementById("socControlRPE").checked = !!s.controlRPE;
   renderResumenAntecedentes(s);
   document.getElementById("bloqueAntecedentes").open = tieneAlertaSalud(s);
+  document.getElementById("editNoteTxt").textContent = "Editando la ficha de " + (s.nombre || formatRut(rutNorm)) + ".";
   document.getElementById("editNote").classList.add("show");
+  document.getElementById("btnGuardarSocio").textContent = "Guardar cambios";
 
   rutinaEnEdicion = s.rutina && s.rutina.sesiones ? JSON.parse(JSON.stringify(s.rutina.sesiones)) : [];
   document.getElementById("fichaHint").style.display = "none";
@@ -1112,6 +1124,7 @@ function limpiarFormularioSocio(){
   renderResumenAntecedentes(null);
   document.getElementById("bloqueAntecedentes").open = false;
   document.getElementById("editNote").classList.remove("show");
+  document.getElementById("btnGuardarSocio").textContent = "Inscribir socio";
   cancelarEdicionEval();
   document.getElementById("fichaAvanzada").classList.remove("show");
   document.getElementById("fichaHint").style.display = "block";
@@ -2796,6 +2809,12 @@ async function init(){
   });
   document.getElementById("btnGuardarSocio").addEventListener("click", guardarFichaSocio);
   document.getElementById("cancelarEdicion").addEventListener("click", limpiarFormularioSocio);
+  document.getElementById("btnNuevoSocio").addEventListener("click", ()=>{
+    limpiarFormularioSocio();
+    const r = document.getElementById("socRut");
+    r.scrollIntoView({ behavior:"smooth", block:"center" });
+    setTimeout(()=> r.focus(), 300);
+  });
   document.getElementById("filtroSocios").addEventListener("input", renderSocios);
   document.getElementById("btnRespaldo").addEventListener("click", descargarRespaldo);
   construirAntecedentes();
