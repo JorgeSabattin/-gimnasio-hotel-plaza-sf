@@ -765,6 +765,8 @@ let rutinaEnEdicion = []; // [{nombre, ejercicios:[{nombre,series,reps,descanso,
 
 const SUPABASE_URL = "https://wbrtxcthmktxprcybmrn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicnR4Y3RobWt0eHByY3libXJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzQyNzIsImV4cCI6MjEwNjgxMDI3Mn0.eWehgxTMFTrmQRyYQ0hmL2P11O0lzq3OV8r1xMT-5w4";
+// App del socio (repo «mi-rutina»). Vacío = usar la vista #socio de esta misma página.
+const APP_SOCIO_URL = "https://jorgesabattin.github.io/mi-rutina/?g=hotel";
 const MODO_NUBE = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const sb = MODO_NUBE ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -1530,6 +1532,7 @@ function renderRutinasAnteriores(){
   });
 }
 function enlacePortal(){
+  if(APP_SOCIO_URL) return APP_SOCIO_URL;
   return location.protocol.startsWith("http") ? location.origin + location.pathname + "#socio" : "";
 }
 function compartirPortal(){
@@ -2768,7 +2771,11 @@ async function importarSocios(file){
 // ============================================================
 async function init(){
   window.addEventListener("hashchange", () => location.reload());
-  if(location.hash === "#socio"){ iniciarPortal(); return; }
+  if(location.hash === "#socio"){
+    if(APP_SOCIO_URL){ location.replace(APP_SOCIO_URL); return; }
+    iniciarPortal(); return;
+  }
+  if(APP_SOCIO_URL) document.getElementById("lnkPortal").href = APP_SOCIO_URL;
 
   const badge = document.getElementById("modoBadge");
   badge.textContent = MODO_NUBE ? "En línea" :
