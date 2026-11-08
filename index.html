@@ -525,7 +525,11 @@
           <label for="socTelefonoContacto">Teléfono de contacto</label>
           <input type="tel" id="socTelefonoContacto" placeholder="+56 9 8765 4321" autocomplete="off">
         </div>
-        <div class="field" style="grid-column:1/-1">
+        <div class="field">
+          <label for="socCorreo">Correo</label>
+          <input type="email" id="socCorreo" placeholder="nombre@correo.cl" autocomplete="off">
+        </div>
+        <div class="field">
           <label for="socDireccion">Dirección</label>
           <input type="text" id="socDireccion" placeholder="Calle, número, comuna" autocomplete="off">
         </div>
@@ -579,7 +583,11 @@
         <div class="form-actions">
           <button class="btn btn-primary btn-sm" id="btnGuardarRutina">Guardar rutina</button>
           <button class="btn btn-ghost btn-sm" id="btnImprimirPlan">Imprimir plan</button>
-          <button class="btn btn-ghost btn-sm" id="btnCompartirPortal">Enviar enlace al socio (WhatsApp)</button>
+          <button class="btn btn-ghost btn-sm" id="btnEnviarCorreo">Enviar rutina por correo</button>
+          <select id="selMedioCorreo" title="Con qué se abre el correo en este computador" style="width:auto; padding:6px 8px; font:600 12px 'Public Sans',sans-serif">
+            <option value="gmail">Correo con Gmail</option><option value="outlook">Correo con Outlook web</option><option value="programa">Correo con programa del equipo</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="btnCompartirPortal">Enviar rutina por WhatsApp</button>
         </div>
         <div id="rutinasAnteriores"></div>
 
@@ -1054,6 +1062,7 @@ async function guardarFichaSocio(){
   const nombre = document.getElementById("socNombre").value.trim();
   const telefono = document.getElementById("socTelefono").value.trim();
   const telefonoContacto = document.getElementById("socTelefonoContacto").value.trim();
+  const correo = document.getElementById("socCorreo").value.trim();
   const direccion = document.getElementById("socDireccion").value.trim();
   const objetivo = document.getElementById("socObjetivo").value;
   const pin = document.getElementById("socPin").value.trim();
@@ -1061,6 +1070,7 @@ async function guardarFichaSocio(){
   if(!rutValido(norm)){ toast("RUT no válido.", true); return; }
   if(!nombre){ toast("Falta el nombre del socio.", true); return; }
   if(pin && !/^\d{4,6}$/.test(pin)){ toast("La clave debe tener entre 4 y 6 dígitos.", true); return; }
+  if(correo && !correoValido(correo)){ toast("El correo no es válido.", true); return; }
 
   if(editandoRut && norm !== editandoRut){
     toast("No se puede cambiar el RUT de un socio existente. Para inscribir a otra persona pulsa «+ Nuevo socio».", true);
@@ -1074,7 +1084,7 @@ async function guardarFichaSocio(){
   const esNuevo = !SOCIOS[norm];
   const existente = SOCIOS[norm] || {};
   SOCIOS[norm] = Object.assign({}, existente, {
-    nombre, telefono, telefonoContacto, direccion, objetivo, pin,
+    nombre, telefono, telefonoContacto, correo, direccion, objetivo, pin,
     antecedentes: leerAntecedentes(),
     controlRPE: document.getElementById("socControlRPE").checked,
     rutina: existente.rutina || null,
@@ -1094,6 +1104,7 @@ function cargarSocioEnFormulario(rutNorm){
   document.getElementById("socNombre").value = s.nombre || "";
   document.getElementById("socTelefono").value = s.telefono || "";
   document.getElementById("socTelefonoContacto").value = s.telefonoContacto || "";
+  document.getElementById("socCorreo").value = s.correo || "";
   document.getElementById("socDireccion").value = s.direccion || "";
   document.getElementById("socObjetivo").value = s.objetivo || "";
   document.getElementById("socPin").value = s.pin || "";
@@ -1121,7 +1132,7 @@ function cargarSocioEnFormulario(rutNorm){
 function limpiarFormularioSocio(){
   editandoRut = null;
   rutinaEnEdicion = [];
-  ["socRut","socNombre","socTelefono","socTelefonoContacto","socDireccion","socPin"].forEach(id=>{
+  ["socRut","socNombre","socTelefono","socTelefonoContacto","socCorreo","socDireccion","socPin"].forEach(id=>{
     document.getElementById(id).value = "";
   });
   document.getElementById("socObjetivo").value = "";
@@ -1491,6 +1502,7 @@ function rutinaDesactualizada(s){
   return fechaNum(ult.fecha) > base;
 }
 function renderRutinaMeta(){
+  actualizarBotonCorreo();
   const sel = document.getElementById("rutBaseEval");
   const banner = document.getElementById("rutinaMeta");
   const prox = document.getElementById("rutProxEval");
@@ -1539,6 +1551,47 @@ function renderRutinasAnteriores(){
 function enlacePortal(){
   if(APP_SOCIO_URL) return APP_SOCIO_URL;
   return location.protocol.startsWith("http") ? location.origin + location.pathname + "#socio" : "";
+}
+// Con qué se abre el correo en este computador: "gmail", "outlook" (web, Microsoft 365) o "programa" (mailto)
+function medioCorreo(){ try{ return localStorage.getItem("gym-medio-correo") || "gmail"; }catch(e){ return "gmail"; } }
+function correoValido(c){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(c || "").trim()); }
+function actualizarBotonCorreo(){
+  const s = editandoRut && SOCIOS[editandoRut];
+  const bc = document.getElementById("btnEnviarCorreo");
+  if(!bc) return;
+  bc.textContent = "Enviar rutina por correo" + (s && correoValido(s.correo) ? " · " + s.correo.trim() : "");
+  bc.title = s && correoValido(s.correo) ? "" : "El socio no tiene un correo válido en su ficha";
+}
+function enviarCorreo(){
+  const url = enlacePortal();
+  if(!url){ toast("El enlace funciona cuando la app está publicada en internet (GitHub Pages).", true); return; }
+  const s = SOCIOS[editandoRut];
+  if(!s) return;
+  if(!correoValido(s.correo)){ toast("El socio no tiene un correo válido en su ficha. Agrégalo y pulsa Guardar cambios.", true); return; }
+  if(!s.pin && !confirm("Este socio no tiene clave del portal, así que no podrá entrar a ver la rutina. ¿Enviar el correo igual?")) return;
+  const r = s.rutina || {};
+  const lista = (r.sesiones || []).length;
+  const asunto = lista ? "Tu rutina del gimnasio · Hotel Plaza San Francisco" : "App del gimnasio · Hotel Plaza San Francisco";
+  const cuerpo = [
+    "Hola " + s.nombre.split(" ")[0] + ",",
+    "",
+    lista ? "Tu rutina del gimnasio está lista" + (r.vigenteDesde ? " (actualizada el " + r.vigenteDesde + ")" : "") + "." : "Ya puedes usar la app del gimnasio.",
+    "Para verla, abre este enlace desde tu celular:",
+    url,
+    "",
+    "Ingresa con tu RUT y la clave que te entregamos.",
+    "",
+    "Para tener la app en tu pantalla de inicio:",
+    "- Android: abre el enlace en Chrome, toca el menú ⋮ y luego «Agregar a pantalla de inicio».",
+    "- iPhone: abre el enlace en Safari, toca Compartir y luego «Agregar a inicio».",
+    "",
+    "Gimnasio · Hotel Plaza San Francisco"
+  ].join("\n");
+  const para = encodeURIComponent(s.correo.trim()), su = encodeURIComponent(asunto), bo = encodeURIComponent(cuerpo);
+  const via = medioCorreo();
+  if(via === "outlook") window.open("https://outlook.office.com/mail/deeplink/compose?to=" + para + "&subject=" + su + "&body=" + bo, "_blank", "noopener");
+  else if(via === "gmail") window.open("https://mail.google.com/mail/?view=cm&fs=1&to=" + para + "&su=" + su + "&body=" + bo, "_blank", "noopener");
+  else location.href = "mailto:" + para + "?subject=" + su + "&body=" + bo;
 }
 function compartirPortal(){
   const url = enlacePortal();
@@ -2823,7 +2876,7 @@ async function importarSocios(file){
   ruts.forEach(r => {
     const e = entrantes[r], n = normRut(r), prev = SOCIOS[n];
     if(prev){
-      ["nombre","telefono","telefonoContacto","direccion","objetivo","pin"].forEach(f => { if(lleno(e[f])) prev[f] = e[f]; });
+      ["nombre","telefono","telefonoContacto","correo","direccion","objetivo","pin"].forEach(f => { if(lleno(e[f])) prev[f] = e[f]; });
       if(e.antecedentes && typeof e.antecedentes === "object"){
         prev.antecedentes = prev.antecedentes || {};
         Object.keys(e.antecedentes).forEach(k => {
@@ -2851,7 +2904,7 @@ async function importarSocios(file){
       return;
     }
     SOCIOS[n] = {
-      nombre: e.nombre, telefono: e.telefono || "", telefonoContacto: e.telefonoContacto || "",
+      nombre: e.nombre, telefono: e.telefono || "", telefonoContacto: e.telefonoContacto || "", correo: e.correo || "",
       direccion: e.direccion || "", objetivo: e.objetivo || "", pin: e.pin || "",
       antecedentes: e.antecedentes || {}, controlRPE: !!e.controlRPE,
       rutina: e.rutina || null, evaluaciones: e.evaluaciones || []
@@ -2959,6 +3012,10 @@ async function init(){
   document.getElementById("btnAgregarSesion").addEventListener("click", agregarSesion);
   document.getElementById("btnGuardarRutina").addEventListener("click", guardarRutina);
   document.getElementById("btnCompartirPortal").addEventListener("click", compartirPortal);
+  document.getElementById("btnEnviarCorreo").addEventListener("click", enviarCorreo);
+  const selMC = document.getElementById("selMedioCorreo");
+  selMC.value = medioCorreo();
+  selMC.addEventListener("change", () => { try{ localStorage.setItem("gym-medio-correo", selMC.value); }catch(e){} });
   document.getElementById("btnImprimirPlan").addEventListener("click", imprimirPlan);
   document.getElementById("btnAgregarEvaluacion").addEventListener("click", agregarEvaluacion);
   document.getElementById("btnCancelarEval").addEventListener("click", cancelarEdicionEval);
