@@ -203,16 +203,18 @@
   }
   .sesion-card .sesion-head{display:flex; gap:10px; align-items:center; margin-bottom:10px}
   .sesion-card .sesion-head input{font-family:'Fraunces',serif; font-size:14.5px; font-weight:600; background:#fff}
-  .ejercicio-row{display:grid; grid-template-columns:2.1fr 0.6fr 0.8fr 0.7fr 0.9fr 0.8fr 1.2fr auto; gap:6px; margin-bottom:6px; align-items:center}
+  .ejercicio-row{display:grid; grid-template-columns:2fr 0.55fr 0.75fr 0.6fr 0.85fr 0.5fr 0.5fr 0.7fr 1.1fr auto; gap:6px; margin-bottom:6px; align-items:center}
   @media (max-width:800px){ .ejercicio-row{grid-template-columns:1fr 1fr} .ejercicio-row select{grid-column:1/-1} .ejercicio-head-row{display:none} }
   .ejercicio-row input, .ejercicio-row select{padding:7px 9px; font-size:12.5px}
   .ejercicio-row select{background:#fff; font-family:'Public Sans',sans-serif}
+  .ejercicio-row input.inp-carga{font-weight:700; color:var(--teal-d)}
+  .ejercicio-row input.inp-carga::placeholder{color:var(--teal-d); opacity:.75; font-weight:700}
   .ejercicio-row select.vacio{color:var(--muted); border-color:var(--brass)}
   .ejercicio-row .icon-btn{
     background:transparent; border:none; color:var(--faint); cursor:pointer; font-size:16px; padding:4px 8px;
   }
   .ejercicio-row .icon-btn:hover{color:var(--red)}
-  .ejercicio-head-row{display:grid; grid-template-columns:2.1fr 0.6fr 0.8fr 0.7fr 0.9fr 0.8fr 1.2fr auto; gap:6px; margin-bottom:6px;}
+  .ejercicio-head-row{display:grid; grid-template-columns:2fr 0.55fr 0.75fr 0.6fr 0.85fr 0.5fr 0.5fr 0.7fr 1.1fr auto; gap:6px; margin-bottom:6px;}
   @media (max-width:800px){ .ejercicio-head-row{display:none} }
   .ejercicio-head-row span{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--faint); font-weight:700}
   .sesion-actions{display:flex; justify-content:space-between; margin-top:8px}
@@ -567,6 +569,7 @@
         <div class="form-grid" style="margin-bottom:14px">
           <div class="field"><label for="rutBaseEval">Basada en la evaluación del</label><select id="rutBaseEval"></select></div>
           <div class="field"><label for="rutProxEval">Próxima evaluación</label><input type="text" id="rutProxEval" placeholder="dd-mm-aaaa" autocomplete="off"></div>
+          <div class="field"><label for="rutProfesor">Profesor</label><input type="text" id="rutProfesor" placeholder="Nombre o iniciales" autocomplete="off"></div>
         </div>
         <div class="form-actions" style="margin-bottom:14px">
           <button class="btn btn-ghost btn-sm" id="btnCargarPlantilla">Usar plantilla: pérdida de peso y ganancia muscular (4 sesiones)</button>
@@ -575,6 +578,7 @@
         <div id="rutinaEditor"></div>
         <div class="form-actions">
           <button class="btn btn-primary btn-sm" id="btnGuardarRutina">Guardar rutina</button>
+          <button class="btn btn-ghost btn-sm" id="btnImprimirPlan">Imprimir plan</button>
           <button class="btn btn-ghost btn-sm" id="btnCompartirPortal">Enviar enlace al socio (WhatsApp)</button>
         </div>
         <div id="rutinasAnteriores"></div>
@@ -1490,7 +1494,7 @@ function renderRutinaMeta(){
   const sel = document.getElementById("rutBaseEval");
   const banner = document.getElementById("rutinaMeta");
   const prox = document.getElementById("rutProxEval");
-  if(!editandoRut || !SOCIOS[editandoRut]){ sel.innerHTML = ""; banner.innerHTML = ""; prox.value = ""; return; }
+  if(!editandoRut || !SOCIOS[editandoRut]){ sel.innerHTML = ""; banner.innerHTML = ""; prox.value = ""; document.getElementById("rutProfesor").value = ""; return; }
   const s = SOCIOS[editandoRut];
   const r = s.rutina || {};
   const evals = (s.evaluaciones || []).slice().sort((a,b) => fechaNum(b.fecha) - fechaNum(a.fecha));
@@ -1500,6 +1504,7 @@ function renderRutinaMeta(){
     '<option value="' + ev.id + '"' + (ev.id === elegido ? ' selected' : '') + '>' + escapeHtml(ev.fecha) + (ev.peso ? ' · ' + escapeHtml(ev.peso) + ' kg' : '') + '</option>'
   ).join("");
   prox.value = r.proximaEvaluacion || "";
+  document.getElementById("rutProfesor").value = r.profesor || "";
   const ult = evals[0];
   if(!(r.sesiones || []).length){
     banner.innerHTML = '<div class="rut-banner">El socio aún no tiene rutina publicada.' + (ult ? ' Arma la rutina a partir de la evaluación del ' + escapeHtml(ult.fecha) + ' y guárdala.' : '') + '</div>';
@@ -1550,14 +1555,14 @@ function compartirPortal(){
 const RIR_DEFECTO = 2;   // repeticiones en reserva cuando el profesor no fija el % 1RM
 function numero(v){ const n = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(n) ? n : 0; }
 function fmtKg(n){ return (Math.round(n * 2) / 2).toLocaleString("es-CL", { maximumFractionDigits: 1 }); }
-// Brzycki hasta 10 reps; Epley sobre 10
+// 1RM de Epley: carga × (1 + reps/30), redondeado a 0,1 kg (misma fórmula de la planilla del profesor)
 function estimarRM(carga, reps){
   const c = numero(carga), r = Math.round(numero(reps));
   if(!c || !r || r < 1 || r > 30) return 0;
   if(r === 1) return c;
-  return r <= 10 ? c * 36 / (37 - r) : c * (1 + r / 30);
+  return Math.round(c * (1 + r / 30) * 10) / 10;
 }
-function pctPorReps(r){ return r <= 10 ? (37 - r) / 36 * 100 : 100 / (1 + r / 30); }
+function pctPorReps(r){ return 100 / (1 + r / 30); }
 // Reps objetivo de la rutina: toma el número mayor ("8-10" → 10). Devuelve 0 si es tiempo ("30-45s", "15 min").
 function repsObjetivo(txt){
   const t = String(txt || "").toLowerCase();
@@ -1572,8 +1577,8 @@ function rmEjercicio(socio, nombre, evBaseId){
   const lista = base ? [base].concat(evals.filter(e => e !== base && fechaNum(e.fecha) <= fechaNum(base.fecha))) : evals;
   const n = normNom(nombre);
   for(const ev of lista){
-    const t = (ev.fuerza || []).find(f => normNom(f.ejercicio) === n && numero(f.rm) > 0);
-    if(t) return { rm: numero(t.rm), fecha: ev.fecha };
+    const t = (ev.fuerza || []).find(f => normNom(f.ejercicio) === n && (estimarRM(f.carga, f.reps) > 0 || numero(f.rm) > 0));
+    if(t) return { rm: estimarRM(t.carga, t.reps) || numero(t.rm), fecha: ev.fecha };
   }
   return null;
 }
@@ -1582,13 +1587,14 @@ function calcularCarga(socio, ej, evBaseId){
   const t = rmEjercicio(socio, ej.nombre, evBaseId);
   if(!t) return null;
   let pct = numero(ej.pct), auto = false;
+  const rir = String(ej.rir == null ? "" : ej.rir).trim() !== "" ? Math.max(0, Math.round(numero(ej.rir))) : RIR_DEFECTO;
   if(!pct){
     const r = repsObjetivo(ej.reps);
     if(!r) return null;
-    pct = pctPorReps(r + RIR_DEFECTO); auto = true;
+    pct = pctPorReps(r + rir); auto = true;
   }
   const kg = Math.round(t.rm * pct / 100 * 2) / 2;
-  return kg > 0 ? { kg, pct: Math.round(pct), auto, rm: t.rm, fecha: t.fecha } : null;
+  return kg > 0 ? { kg, pct: Math.round(pct), auto, rir, rm: t.rm, fecha: t.fecha } : null;
 }
 function evalBaseSeleccionada(){
   const sel = document.getElementById("rutBaseEval");
@@ -1600,8 +1606,18 @@ function textoCarga(c){
   return c ? fmtKg(c.kg) + " kg" : "—";
 }
 function tituloCarga(c){
-  return c ? "1RM " + fmtKg(c.rm) + " kg (test del " + c.fecha + ") × " + c.pct + "%" + (c.auto ? " (según reps, " + RIR_DEFECTO + " en reserva)" : "")
-           : "Sin test de fuerza para este ejercicio, o reps por tiempo";
+  return c ? "1RM " + fmtKg(c.rm) + " kg (test del " + c.fecha + ") × " + c.pct + "%" + (c.auto ? " (según reps, " + c.rir + " en reserva)" : "") + ". Escribe un valor para fijar la carga a mano."
+           : "Sin test de fuerza para este ejercicio, o reps por tiempo. Escribe la carga a mano.";
+}
+function cargaFinal(socio, ej, evId){
+  const m = String(ej.carga || "").trim();
+  if(m) return m;
+  const c = calcularCarga(socio, ej, evId);
+  return c ? fmtKg(c.kg) : "";
+}
+function cargaConUnidad(v){
+  v = String(v || "").trim();
+  return /^\d+([.,]\d+)?$/.test(v) ? v + " kg" : v;
 }
 // Lo que el socio puede ver de una evaluación (sin antecedentes de salud)
 function evaluacionParaSocio(ev){
@@ -1687,14 +1703,16 @@ function renderRutinaEditor(){
         '<input type="text" data-sesion-nombre="' + sIdx + '" value="' + escapeAttr(sesion.nombre) + '">' +
         '<button class="btn btn-danger btn-sm" data-eliminar-sesion="' + sIdx + '">Eliminar sesión</button>' +
       '</div>' +
-      '<div class="ejercicio-head-row"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>% 1RM</span><span>Carga</span><span>Descanso</span><span>Notas</span><span></span></div>';
+      '<div class="ejercicio-head-row"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>% 1RM</span><span title="Vacío = calculada desde el 1RM">Carga</span><span>RPE</span><span>RIR</span><span>Descanso</span><span>Notas</span><span></span></div>';
     sesion.ejercicios.forEach((ej, eIdx)=>{
       html += '<div class="ejercicio-row">' +
         '<select data-ej-sel data-s="' + sIdx + '" data-e="' + eIdx + '" class="' + (ej.nombre ? '' : 'vacio') + '" aria-label="Ejercicio">' + opcionesEjercicios(ej.nombre) + '</select>' +
         '<input type="text" placeholder="Series" data-ej="series" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.series) + '">' +
         '<input type="text" placeholder="Reps" data-ej="reps" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.reps) + '">' +
         '<input type="text" inputmode="decimal" placeholder="auto" title="% del 1RM. Vacío = según las reps, con ' + RIR_DEFECTO + ' en reserva" data-ej="pct" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.pct || "") + '">' +
-        (c => '<div class="kg-calc' + (c ? '' : ' sin') + '" data-kg="' + sIdx + ':' + eIdx + '" title="' + escapeAttr(tituloCarga(c)) + '">' + textoCarga(c) + '</div>')(calcularCarga(SOCIOS[editandoRut], ej, evalBaseSeleccionada())) +
+        (c => '<input type="text" class="inp-carga" placeholder="' + (c ? fmtKg(c.kg) + ' kg' : 'kg') + '" data-kg="' + sIdx + ':' + eIdx + '" title="' + escapeAttr(tituloCarga(c)) + '" data-ej="carga" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.carga || "") + '">')(calcularCarga(SOCIOS[editandoRut], ej, evalBaseSeleccionada())) +
+        '<input type="text" inputmode="decimal" placeholder="RPE" title="Esfuerzo percibido (1 a 10)" data-ej="rpe" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.rpe || "") + '">' +
+        '<input type="text" inputmode="numeric" placeholder="RIR" title="Repeticiones en reserva. Ajusta la carga calculada" data-ej="rir" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.rir || "") + '">' +
         '<input type="text" placeholder="Descanso" data-ej="descanso" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.descanso) + '">' +
         '<input type="text" placeholder="Notas" data-ej="notas" data-s="' + sIdx + '" data-e="' + eIdx + '" value="' + escapeAttr(ej.notas) + '">' +
         '<button class="icon-btn" data-eliminar-ejercicio="' + sIdx + ':' + eIdx + '" title="Eliminar ejercicio">✕</button>' +
@@ -1732,10 +1750,10 @@ function renderRutinaEditor(){
     inp.oninput = () => {
       const s = +inp.getAttribute("data-s"), e = +inp.getAttribute("data-e"), campo = inp.getAttribute("data-ej");
       rutinaEnEdicion[s].ejercicios[e][campo] = inp.value;
-      if(campo === "pct" || campo === "reps"){
+      if(campo === "pct" || campo === "reps" || campo === "rir"){
         const cell = host.querySelector('[data-kg="' + s + ':' + e + '"]');
         const c = calcularCarga(SOCIOS[editandoRut], rutinaEnEdicion[s].ejercicios[e], evalBaseSeleccionada());
-        if(cell){ cell.textContent = textoCarga(c); cell.title = tituloCarga(c); cell.classList.toggle("sin", !c); }
+        if(cell){ cell.placeholder = c ? fmtKg(c.kg) + " kg" : "kg"; cell.title = tituloCarga(c); }
       }
     };
   });
@@ -1770,8 +1788,7 @@ async function guardarRutina(){
   const pctMalo = rutinaEnEdicion.some(ses => ses.ejercicios.some(ej => String(ej.pct || "").trim() && !(numero(ej.pct) > 0 && numero(ej.pct) <= 100)));
   if(pctMalo){ toast("El % 1RM debe ser un número entre 1 y 100 (o quedar vacío).", true); return; }
   rutinaEnEdicion.forEach(ses => ses.ejercicios.forEach(ej => {
-    const c = calcularCarga(socio, ej, evId);
-    ej.kg = c ? fmtKg(c.kg) : "";
+    ej.kg = cargaFinal(socio, ej, evId);
   }));
   if(prox && !fechaNum(prox)){ toast("La próxima evaluación debe tener formato dd-mm-aaaa.", true); return; }
   const anterior = socio.rutina;
@@ -1780,7 +1797,8 @@ async function guardarRutina(){
     vigenteDesde: hoyStr(),
     evaluacionId: ev ? ev.id : "",
     evaluacionFecha: ev ? ev.fecha : "",
-    proximaEvaluacion: prox
+    proximaEvaluacion: prox,
+    profesor: document.getElementById("rutProfesor").value.trim()
   };
   const cambioEjercicios = !anterior || JSON.stringify(anterior.sesiones || []) !== JSON.stringify(nueva.sesiones);
   const cambioBase = !anterior || (anterior.evaluacionId || "") !== nueva.evaluacionId;
@@ -1798,6 +1816,99 @@ async function guardarRutina(){
 
 function escapeAttr(s){
   return escapeHtml(s).replace(/"/g,"&quot;");
+}
+
+// ============================================================
+// IMPRIMIR PLAN (formato de la planilla del profesor)
+// ============================================================
+const ZONAS_FC = [
+  ["Recuperación", 0.50, 0.60, "Regeneración", "20–30 min"],
+  ["Aeróbica base", 0.60, 0.70, "Base aeróbica", "30–50 min"],
+  ["Quema grasa", 0.65, 0.75, "Oxidar grasa", "40–60 min"],
+  ["Tempo", 0.70, 0.80, "Umbral aeróbico", "20–40 min"],
+  ["Umbral", 0.80, 0.90, "Umbral anaeróbico", "15–25 min"],
+  ["VO2 máx", 0.90, 1.00, "Potencia máxima", "4–8 series"]
+];
+function edadDesde(fnac){
+  const m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(String(fnac || "").trim());
+  if(!m) return 0;
+  const hoy = new Date();
+  let e = hoy.getFullYear() - (+m[3]);
+  if(hoy.getMonth() + 1 < +m[2] || (hoy.getMonth() + 1 === +m[2] && hoy.getDate() < +m[1])) e--;
+  return e > 0 && e < 120 ? e : 0;
+}
+function imprimirPlan(){
+  const s = editandoRut && SOCIOS[editandoRut];
+  if(!s){ toast("Abre la ficha de un socio primero.", true); return; }
+  if(!rutinaEnEdicion.length){ toast("El socio no tiene rutina para imprimir.", true); return; }
+  const evId = document.getElementById("rutBaseEval").value;
+  const evals = (s.evaluaciones || []).slice().sort((a,b) => fechaNum(b.fecha) - fechaNum(a.fecha));
+  const ev = evals.find(e => e.id === evId) || null;
+  const edad = edadDesde(s.antecedentes && s.antecedentes.fechaNacimiento);
+  const objOpt = document.querySelector('#socObjetivo option[value="' + (s.objetivo || "") + '"]');
+  const objetivo = s.objetivo && objOpt ? objOpt.textContent : "";
+  const profesor = document.getElementById("rutProfesor").value.trim();
+  const prox = document.getElementById("rutProxEval").value.trim();
+  const e = escapeHtml, v = x => lleno(x) ? e(x) : "—";
+
+  const dato = (k, x) => '<div class="d"><span>' + k + '</span><b>' + v(x) + '</b></div>';
+  let html = '<header><div><div class="marca">Gimnasio · Hotel Plaza San Francisco</div><h1>Planificación de entrenamiento</h1></div>' +
+    '<div class="fecha">Emitido el ' + hoyStr() + '</div></header>';
+
+  html += '<h2>1 · Datos del socio</h2><div class="datos">' +
+    dato("Nombre", s.nombre) + dato("Edad", edad ? edad + " años" : "") + dato("Objetivo", objetivo) +
+    dato("Profesor", profesor) + dato("Evaluación base", ev ? ev.fecha : "") + dato("Próxima evaluación", prox) + '</div>';
+
+  const fuerza = ev ? (ev.fuerza || []) : [];
+  if(fuerza.length){
+    html += '<h2>2 · Test de fuerza <small>1RM estimado (Epley)</small></h2><table><thead><tr><th>Ejercicio</th><th class="n">Peso (kg)</th><th class="n">Reps</th><th class="n">1RM (kg)</th></tr></thead><tbody>' +
+      fuerza.map(f => '<tr><td>' + e(f.ejercicio) + '</td><td class="n">' + e(f.carga) + '</td><td class="n">' + e(f.reps) + '</td><td class="n"><b>' +
+        (estimarRM(f.carga, f.reps) || numero(f.rm)).toLocaleString("es-CL", { maximumFractionDigits: 1 }) + '</b></td></tr>').join("") + '</tbody></table>';
+  }
+
+  html += '<h2>3 · Frecuencia cardíaca <small>Karvonen</small></h2>';
+  if(s.controlRPE){
+    html += '<div class="aviso">Controlar la intensidad por esfuerzo percibido (RPE), no por frecuencia cardíaca ni pulsómetro.</div>';
+  } else if(!edad){
+    html += '<div class="nota">Falta la fecha de nacimiento en la ficha del socio para calcular las zonas.</div>';
+  } else {
+    const fcMax = 220 - edad;
+    const fcRep = Math.round(numero(ev && ev.fcReposo) || numero((evals.find(x => numero(x.fcReposo) > 0) || {}).fcReposo));
+    html += '<div class="datos tres">' + dato("FC máxima (220 − edad)", fcMax + " lpm") + dato("FC en reposo", fcRep ? fcRep + " lpm" : "") + dato("Reserva", (fcMax - fcRep) + " lpm") + '</div>' +
+      (fcRep ? '' : '<div class="nota">Sin FC en reposo registrada: las zonas quedan como porcentaje de la FC máxima. Regístrala en la evaluación para usar Karvonen completo.</div>') +
+      '<table><thead><tr><th>Zona</th><th class="n">% intensidad</th><th class="n">FC mín</th><th class="n">FC máx</th><th>Objetivo</th><th>Duración</th></tr></thead><tbody>' +
+      ZONAS_FC.map(z => '<tr><td>' + z[0] + '</td><td class="n">' + Math.round(z[1] * 100) + '–' + Math.round(z[2] * 100) + '%</td><td class="n">' +
+        Math.round((fcMax - fcRep) * z[1] + fcRep) + '</td><td class="n">' + Math.round((fcMax - fcRep) * z[2] + fcRep) + '</td><td>' + z[3] + '</td><td>' + z[4] + '</td></tr>').join("") +
+      '</tbody></table>';
+  }
+
+  html += '<h2>4 · Plan de entrenamiento</h2>';
+  rutinaEnEdicion.forEach(ses => {
+    html += '<div class="sesion"><h3>' + e(ses.nombre) + '</h3><table class="plan"><thead><tr><th>Ejercicio</th><th class="n">Series</th><th class="n">Reps</th><th class="n">Carga</th><th class="n">RPE</th><th class="n">RIR</th><th class="n">Desc.</th><th>Observaciones</th></tr></thead><tbody>' +
+      (ses.ejercicios || []).map(ej => '<tr><td>' + v(ej.nombre) + '</td><td class="n">' + v(ej.series) + '</td><td class="n">' + v(ej.reps) + '</td><td class="n"><b>' +
+        v(cargaConUnidad(cargaFinal(s, ej, evId))) + '</b></td><td class="n">' + v(ej.rpe) + '</td><td class="n">' + v(ej.rir) + '</td><td class="n">' +
+        (ej.descanso && ej.descanso !== "—" ? e(ej.descanso) : "—") + '</td><td>' + (lleno(ej.notas) ? e(ej.notas) : "") + '</td></tr>').join("") +
+      '</tbody></table></div>';
+  });
+  if(ev && ev.notas) html += '<h2>Observaciones de la evaluación</h2><p class="obs">' + e(ev.notas) + '</p>';
+
+  const css = '@page{size:A4;margin:14mm 12mm}*{box-sizing:border-box}body{font:11.5px/1.4 "Helvetica Neue",Arial,sans-serif;color:#2B2620;margin:0;padding:20px}' +
+    'header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #12615A;padding-bottom:8px;margin-bottom:6px}' +
+    '.marca{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8A672F}h1{font:600 22px Georgia,serif;margin:2px 0 0}.fecha{font-size:10.5px;color:#7A7267}' +
+    'h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#12615A;margin:16px 0 6px;break-after:avoid}h2 small{text-transform:none;letter-spacing:0;color:#7A7267;font-weight:400;margin-left:6px}' +
+    'h3{font:600 13.5px Georgia,serif;margin:10px 0 4px;break-after:avoid}.datos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 14px}.d{border-bottom:1px solid #E2D9C4;padding:3px 0;display:flex;justify-content:space-between;gap:8px}' +
+    '.d span{color:#7A7267}table{width:100%;border-collapse:collapse;margin-top:4px}th{background:#E4EFEC;color:#0B4842;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;padding:5px 6px}' +
+    'td{border-bottom:1px solid #E2D9C4;padding:5px 6px;vertical-align:top}.n{text-align:center;white-space:nowrap}.plan td:first-child{width:30%}.sesion{break-inside:avoid}' +
+    '.aviso{background:#F7E9E5;color:#9C3B2E;padding:8px 10px;border-radius:6px;font-weight:600}.nota{color:#7A7267;font-size:10.5px;margin:4px 0}.obs{white-space:pre-wrap;margin:0}' +
+    '.barra{position:sticky;top:0;background:#fff;padding:0 0 12px;text-align:right}.barra button{font:600 13px Arial;padding:9px 16px;border-radius:8px;border:0;background:#12615A;color:#fff;cursor:pointer}' +
+    '@media print{body{padding:0}.barra{display:none}th{-webkit-print-color-adjust:exact;print-color-adjust:exact}.aviso{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+  const w = window.open("", "_blank");
+  if(!w){ toast("El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio.", true); return; }
+  w.document.write('<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Plan · ' + e(s.nombre) + '</title><style>' + css + '</style></head><body>' +
+    '<div class="barra"><button onclick="window.print()">Imprimir / Guardar PDF</button></div>' + html + '</body></html>');
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 300);
 }
 
 // ============================================================
@@ -2280,7 +2391,8 @@ function renderPortal(){
     const hecho = !!PT_HECHOS[ptSesionSel + ":" + e];
     const pills = [];
     if(ej.series || ej.reps) pills.push('<span class="sv-pill fuerte">' + escapeHtml(ej.series || "—") + ' × ' + escapeHtml(ej.reps || "—") + '</span>');
-    if(ej.kg) pills.push('<span class="sv-pill carga">' + escapeHtml(ej.kg) + ' kg</span>');
+    if(ej.kg) pills.push('<span class="sv-pill carga">' + escapeHtml(cargaConUnidad(ej.kg)) + '</span>');
+    if(ej.rpe || ej.rir) pills.push('<span class="sv-pill">' + [ej.rpe && "RPE " + escapeHtml(ej.rpe), ej.rir && "RIR " + escapeHtml(ej.rir)].filter(Boolean).join(" · ") + '</span>');
     if(ej.descanso && ej.descanso !== "—") pills.push('<span class="sv-pill">Descanso ' + escapeHtml(ej.descanso) + '</span>');
     return '<div class="sv-ej' + (hecho ? ' hecho' : '') + '">' +
       '<div class="sv-fig">' + figuraEjercicio(ej.nombre) + '<div class="sv-num">' + (e + 1) + '</div></div>' +
@@ -2847,6 +2959,7 @@ async function init(){
   document.getElementById("btnAgregarSesion").addEventListener("click", agregarSesion);
   document.getElementById("btnGuardarRutina").addEventListener("click", guardarRutina);
   document.getElementById("btnCompartirPortal").addEventListener("click", compartirPortal);
+  document.getElementById("btnImprimirPlan").addEventListener("click", imprimirPlan);
   document.getElementById("btnAgregarEvaluacion").addEventListener("click", agregarEvaluacion);
   document.getElementById("btnCancelarEval").addEventListener("click", cancelarEdicionEval);
   document.getElementById("btnAgregarFuerza").addEventListener("click", agregarFilaFuerza);
