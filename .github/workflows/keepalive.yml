@@ -19,3 +19,15 @@ jobs:
             -d '{"p_rut":"11111111-1","p_pin":"0000"}')
           echo "HTTP $code"; cat resp.txt; echo
           if [ "$code" != "200" ]; then exit 1; fi
+
+      - name: Ping UNAB
+        if: always()
+        run: |
+          code=$(curl -s -o resp.txt -w "%{http_code}" -X POST \
+            "${{ secrets.UNAB_URL }}/rest/v1/rpc/socio_portal" \
+            -H "apikey: ${{ secrets.UNAB_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.UNAB_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"p_rut":"11111111-1","p_pin":"0000"}')
+          echo "HTTP $code"; cat resp.txt; echo
+          if [ "$code" != "200" ]; then exit 1; fi
